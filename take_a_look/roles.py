@@ -146,7 +146,7 @@ class EvidenceJudge:
                     if all(x!=d.get('expected') for x in observed):
                         status,reason=Status.CONFIRMED,'명시적 사용자 계약의 기대값과 함수 본문 결과가 3/3 다릅니다. 이 계약/입력에 한정된 판정입니다.'
                     elif all(x==d.get('expected') for x in observed):
-                        status,reason=Status.REFUTED,'명시적 사용자 계약의 기대값과 함수 본문 결과가 3/3 같습니다. 이 계약/입력의 의심만 반증합니다.' 
+                        status,reason=Status.REFUTED,'명시적 사용자 계약의 기대값과 함수 본문 결과가 3/3 같습니다. 이 계약/입력의 의심만 반증합니다.'
             if claim.rule == 'js_boundary' and e.kind == 'node_boundary' and e.source_sha256:
                 cases=e.details.get('cases',[])
                 valid_engine=e.details.get('engine')=='typescript-ast-js-interpreter-v2'
