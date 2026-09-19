@@ -1,0 +1,14 @@
+{
+  "name": "take-a-look-toolchain",
+  "version": "0.3.0-alpha",
+  "private": true,
+  "description": "Pinned parser for read-only AST analysis; never resolve tools from audited repositories",
+  "scripts": {
+    "test": "node --test tests-node/*.test.mjs",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "check:syntax": "node --check take_a_look/node_worker.mjs"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3"
+  }
+}

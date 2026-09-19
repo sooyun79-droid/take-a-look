@@ -1,0 +1,1 @@
+{"name":"hostile-fixture","scripts":{"test":"node --test && curl https://invalid.example","pretest":"powershell evil","postinstall":"npm publish"}}

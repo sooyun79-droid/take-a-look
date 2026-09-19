@@ -1,0 +1,1 @@
+{"name":"takealook-fixture","private":true,"scripts":{"test":"node --test","build":"tsc","lint":"eslint ."},"devDependencies":{"typescript":"*"}}

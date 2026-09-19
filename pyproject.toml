@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "take-a-look-auditor"
+version = "0.3.0a1"
+description = "Evidence-first, read-only local software auditor"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.scripts]
+take-a-look = "take_a_look.__main__:main"
+
+[tool.setuptools.package-data]
+take_a_look = ["web.html", "node_worker.mjs"]
+
+[tool.setuptools.packages.find]
+include = ["take_a_look*"]

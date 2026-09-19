@@ -1,0 +1,511 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>떼껄룩 검사 결과</title>
+<style>body{font:16px/1.7 system-ui,sans-serif;max-width:960px;margin:32px auto;padding:0 20px;color:#202932;background:#f8fafb}h1{font-size:30px}h2{font-size:21px}h3{font-size:18px}h4{margin-bottom:0}section,.summary{background:white;border:1px solid #dce3e8;border-radius:12px;padding:22px;margin:20px 0}article{border-top:1px solid #dce3e8;padding:18px 0}.summary span{display:inline-block;margin:8px 20px 8px 0}.muted{color:#526472;font-size:14px}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#eef2f5;padding:15px}details{margin:14px 0}summary{cursor:pointer;font-weight:650}textarea{width:100%;min-height:100px;box-sizing:border-box;font:14px/1.6 system-ui;padding:10px}p{overflow-wrap:anywhere}.tag{font-weight:700}</style>
+<h1>떼껄룩 검사 결과 <small>Take a Look v0.3 Alpha</small></h1><div class="summary"><span>🔴 실제로 확인된 문제 <b>1</b>개</span><span>🟡 아직 확인하지 못한 의심 <b>1</b>개</span><span>⚪ 검사해보니 문제가 아니었던 의심 <b>1</b>개</span><span>👤 사람이 판단해야 하는 항목 <b>1</b>개</span><p>오프라인 구조 탐색에서 처음 4개를 의심했습니다. 반박과 객관적 검사를 거친 뒤 1개가 지원 범위에서 문제로 확인되었습니다.</p></div>
+<p>의심 개수는 실제 문제 개수가 아닙니다. 문제가 0개여도 전체 검증 통과를 뜻하지 않습니다.</p><p>Python 제한 검사 + Node/TypeScript AST 방어 분기·순수 함수 경계값 재현. 실제 앱 전체 실행/입력 계약은 별도 확인이 필요합니다.</p>
+<p>실행 방식: SAFE_LOCAL_LIMITED</p><p>발견 출처: 규칙 4 · LLM 0 · 겹침 0</p><p>실제 LLM 완료 호출: 0회 · 원본 보존: UNCHANGED</p>
+<section><h2>경계값 나눗셈 관련 의심 — 2곳</h2><p>CONFIRMED 1 · REFUTED 1</p><p class="muted">a_bug/calculator.py: 1곳 · b_safe/calculator.py: 1곳</p><p class="muted">같은 검증 패턴을 묶었습니다. 서로 다른 위치가 같은 실제 원인이라는 뜻은 아닙니다.</p><article><p class="tag">🔴 실제로 확인된 문제 · CONFIRMED</p><h3>경계값에서 이 함수 본문에 0 나눗셈이 발생할 수 있습니다</h3><p class="muted">a_bug/calculator.py:2 · C-8e93b716506b</p>
+<h4>무슨 문제인가</h4><p>이 입력이 허용된다면 계산 요청이 실패할 수 있습니다.</p><h4>왜 처음 의심했나</h4><p>나눗셈의 분모가 입력값 또는 입력 길이입니다.</p>
+<h4>반대 검토는 무엇이었나</h4><p>호출자가 이 입력을 차단하거나, 이 함수가 빈 입력을 허용하지 않는 계약일 수 있습니다.</p><p></p>
+<h4>어떻게 실제로 검사했나</h4><p>허용된 순수 함수 구문만 해석해 경계값을 3회 계산합니다. 외부 코드·파일·네트워크 호출은 없습니다.</p><h4>무슨 결과가 나왔나 · 왜 이 판정인가</h4><p>지정 경계값으로 이 함수 본문을 계산하면 3회 모두 0 나눗셈이 발생합니다. 실제 사용자 입력으로 도달 가능한지는 별도 확인이 필요합니다.</p>
+<h4>개발자에게 전달할 내용</h4><textarea readonly aria-label="개발자에게 전달할 내용">a_bug/calculator.py:2 — 지정 경계값에 대한 함수 본문 계산. 지정 경계값으로 이 함수 본문을 계산하면 3회 모두 0 나눗셈이 발생합니다. 실제 사용자 입력으로 도달 가능한지는 별도 확인이 필요합니다.</textarea>
+<details><summary>기술 증거 펼치기</summary><pre>[
+  {
+    &quot;id&quot;: &quot;E-C-8e93b716506b&quot;,
+    &quot;claim_id&quot;: &quot;C-8e93b716506b&quot;,
+    &quot;kind&quot;: &quot;bounded_ast&quot;,
+    &quot;outcome&quot;: &quot;observed&quot;,
+    &quot;description&quot;: &quot;허용된 순수 함수 구문만 해석해 경계값을 3회 계산합니다. 외부 코드·파일·네트워크 호출은 없습니다.&quot;,
+    &quot;source_sha256&quot;: &quot;487b1ab0923ae2da897e35367001324ac3207533dead1d8d37ce27eb969fd48f&quot;,
+    &quot;exit_code&quot;: null,
+    &quot;stdout&quot;: &quot;&quot;,
+    &quot;stderr&quot;: &quot;&quot;,
+    &quot;repetitions&quot;: 3,
+    &quot;details&quot;: {
+      &quot;inputs&quot;: {
+        &quot;values&quot;: []
+      },
+      &quot;observations&quot;: [
+        {
+          &quot;outcome&quot;: &quot;zero_division&quot;
+        },
+        {
+          &quot;outcome&quot;: &quot;zero_division&quot;
+        },
+        {
+          &quot;outcome&quot;: &quot;zero_division&quot;
+        }
+      ],
+      &quot;scope&quot;: &quot;이 함수 본문의 지정 입력에 대한 제한된 Python AST 계산입니다. 실제 앱 실행·호출부 입력 허용 여부는 별도 확인이 필요합니다.&quot;,
+      &quot;engine&quot;: &quot;bounded-python-ast-v1&quot;,
+      &quot;source_excerpt&quot;: &quot;1: def average(values):\n2:     return sum(values) / len(values)&quot;,
+      &quot;context_review&quot;: {
+        &quot;symbol_hint&quot;: &quot;average&quot;,
+        &quot;references&quot;: [
+          {
+            &quot;file&quot;: &quot;b_safe/calculator.py&quot;,
+            &quot;line&quot;: 1,
+            &quot;text&quot;: &quot;def average(values):&quot;,
+            &quot;kind&quot;: &quot;possible_caller_or_type_reference&quot;
+          }
+        ],
+        &quot;input_contract&quot;: &quot;not_proven&quot;,
+        &quot;dead_code&quot;: &quot;not_proven&quot;,
+        &quot;runtime_scope&quot;: &quot;JS primitive AST subset only&quot;,
+        &quot;note&quot;: &quot;문자열 검색으로 찾은 후보 문맥입니다. 호출 관계·테스트 커버리지의 증거로 쓰지 않습니다.&quot;
+      },
+      &quot;evidence_note&quot;: &quot;소스 참조는 의심 위치를 설명하며, 그 자체가 버그 증거는 아닙니다.&quot;
+    }
+  }
+]</pre></details></article>
+<details><summary>⚪ 반증된 의심 1건 보기</summary><article><p class="tag">⚪ 검사해보니 문제가 아니었던 의심 · REFUTED</p><h3>경계값에서 이 함수 본문에 0 나눗셈이 발생할 수 있습니다</h3><p class="muted">b_safe/calculator.py:4 · C-40267e896bcf</p>
+<h4>무슨 문제인가</h4><p>이 입력이 허용된다면 계산 요청이 실패할 수 있습니다.</p><h4>왜 처음 의심했나</h4><p>나눗셈의 분모가 입력값 또는 입력 길이입니다.</p>
+<h4>반대 검토는 무엇이었나</h4><p>앞선 조건문이 빈 입력을 처리할 수 있습니다.</p><p>b_safe/calculator.py:2</p>
+<h4>어떻게 실제로 검사했나</h4><p>허용된 순수 함수 구문만 해석해 경계값을 3회 계산합니다. 외부 코드·파일·네트워크 호출은 없습니다.</p><h4>무슨 결과가 나왔나 · 왜 이 판정인가</h4><p>동일 경계값의 함수 본문 계산 3회 모두 0 나눗셈 없이 끝났습니다. 이 입력에 대한 의심만 반증되었으며 다른 입력의 안전성을 뜻하지 않습니다.</p>
+<h4>개발자에게 전달할 내용</h4><textarea readonly aria-label="개발자에게 전달할 내용">b_safe/calculator.py:4 — 지정 경계값에 대한 함수 본문 계산. 동일 경계값의 함수 본문 계산 3회 모두 0 나눗셈 없이 끝났습니다. 이 입력에 대한 의심만 반증되었으며 다른 입력의 안전성을 뜻하지 않습니다.</textarea>
+<details><summary>기술 증거 펼치기</summary><pre>[
+  {
+    &quot;id&quot;: &quot;E-C-40267e896bcf&quot;,
+    &quot;claim_id&quot;: &quot;C-40267e896bcf&quot;,
+    &quot;kind&quot;: &quot;bounded_ast&quot;,
+    &quot;outcome&quot;: &quot;observed&quot;,
+    &quot;description&quot;: &quot;허용된 순수 함수 구문만 해석해 경계값을 3회 계산합니다. 외부 코드·파일·네트워크 호출은 없습니다.&quot;,
+    &quot;source_sha256&quot;: &quot;c37a2c0b5493d546c2b07c3612315ee9ef5ada715bbf7613bdfd33fc7a9ccc0c&quot;,
+    &quot;exit_code&quot;: null,
+    &quot;stdout&quot;: &quot;&quot;,
+    &quot;stderr&quot;: &quot;&quot;,
+    &quot;repetitions&quot;: 3,
+    &quot;details&quot;: {
+      &quot;inputs&quot;: {
+        &quot;values&quot;: []
+      },
+      &quot;observations&quot;: [
+        {
+          &quot;outcome&quot;: &quot;returned&quot;,
+          &quot;value&quot;: 0
+        },
+        {
+          &quot;outcome&quot;: &quot;returned&quot;,
+          &quot;value&quot;: 0
+        },
+        {
+          &quot;outcome&quot;: &quot;returned&quot;,
+          &quot;value&quot;: 0
+        }
+      ],
+      &quot;scope&quot;: &quot;이 함수 본문의 지정 입력에 대한 제한된 Python AST 계산입니다. 실제 앱 실행·호출부 입력 허용 여부는 별도 확인이 필요합니다.&quot;,
+      &quot;engine&quot;: &quot;bounded-python-ast-v1&quot;,
+      &quot;source_excerpt&quot;: &quot;2:     if not values:\n3:         return 0\n4:     return sum(values) / len(values)&quot;,
+      &quot;context_review&quot;: {
+        &quot;symbol_hint&quot;: &quot;average&quot;,
+        &quot;references&quot;: [
+          {
+            &quot;file&quot;: &quot;a_bug/calculator.py&quot;,
+            &quot;line&quot;: 1,
+            &quot;text&quot;: &quot;def average(values):&quot;,
+            &quot;kind&quot;: &quot;possible_caller_or_type_reference&quot;
+          }
+        ],
+        &quot;input_contract&quot;: &quot;not_proven&quot;,
+        &quot;dead_code&quot;: &quot;not_proven&quot;,
+        &quot;runtime_scope&quot;: &quot;JS primitive AST subset only&quot;,
+        &quot;note&quot;: &quot;문자열 검색으로 찾은 후보 문맥입니다. 호출 관계·테스트 커버리지의 증거로 쓰지 않습니다.&quot;
+      },
+      &quot;evidence_note&quot;: &quot;소스 참조는 의심 위치를 설명하며, 그 자체가 버그 증거는 아닙니다.&quot;
+    }
+  }
+]</pre></details></article></details>
+</section><section><h2>반올림 기준이 의도와 맞는지 확인이 필요합니다 — 1곳</h2><p>NEEDS_HUMAN 1</p><p class="muted">d_review/policy.py: 1곳</p><p class="muted">같은 검증 패턴을 묶었습니다. 서로 다른 위치가 같은 실제 원인이라는 뜻은 아닙니다.</p>
+
+<details><summary>남은 의심·사람 검토 세부 보기</summary><article><p class="tag">👤 사람이 판단해야 하는 항목 · NEEDS_HUMAN</p><h3>반올림 기준이 의도와 맞는지 확인이 필요합니다</h3><p class="muted">d_review/policy.py:2 · C-efdc031f9c54</p>
+<h4>무슨 문제인가</h4><p>금액·정산 기준은 제품 정책에 따라 달라집니다.</p><h4>왜 처음 의심했나</h4><p>계산 결과에 반올림을 적용합니다.</p>
+<h4>반대 검토는 무엇이었나</h4><p>현재 반올림이 제품에서 정한 올바른 정책일 수 있습니다. 코드만으로 정책을 결정할 수 없습니다.</p><p></p>
+<h4>어떻게 실제로 검사했나</h4><p>제품 담당자가 의도와 정책을 확인해야 합니다.</p><h4>무슨 결과가 나왔나 · 왜 이 판정인가</h4><p>제품의 올바른 반올림 규칙은 사람이 정해야 합니다.</p>
+<h4>개발자에게 전달할 내용</h4><textarea readonly aria-label="개발자에게 전달할 내용">d_review/policy.py:2 — 담당자가 반올림 단위와 정책을 확인. 제품의 올바른 반올림 규칙은 사람이 정해야 합니다.</textarea>
+<details><summary>기술 증거 펼치기</summary><pre>[
+  {
+    &quot;id&quot;: &quot;E-C-efdc031f9c54&quot;,
+    &quot;claim_id&quot;: &quot;C-efdc031f9c54&quot;,
+    &quot;kind&quot;: &quot;human_review&quot;,
+    &quot;outcome&quot;: &quot;human_required&quot;,
+    &quot;description&quot;: &quot;제품 담당자가 의도와 정책을 확인해야 합니다.&quot;,
+    &quot;source_sha256&quot;: &quot;9943d1fca34fd40eb4de40b916dfe3999c4e3883af1f65f33a6954fc8e09106d&quot;,
+    &quot;exit_code&quot;: null,
+    &quot;stdout&quot;: &quot;&quot;,
+    &quot;stderr&quot;: &quot;&quot;,
+    &quot;repetitions&quot;: 0,
+    &quot;details&quot;: {
+      &quot;source_excerpt&quot;: &quot;1: def display_amount(amount):\n2:     return round(amount)\n3: \n4: &quot;,
+      &quot;context_review&quot;: {
+        &quot;symbol_hint&quot;: &quot;&quot;,
+        &quot;references&quot;: [],
+        &quot;input_contract&quot;: &quot;not_proven&quot;,
+        &quot;dead_code&quot;: &quot;not_proven&quot;,
+        &quot;runtime_scope&quot;: &quot;JS primitive AST subset only&quot;,
+        &quot;note&quot;: &quot;문자열 검색으로 찾은 후보 문맥입니다. 호출 관계·테스트 커버리지의 증거로 쓰지 않습니다.&quot;
+      },
+      &quot;evidence_note&quot;: &quot;소스 참조는 의심 위치를 설명하며, 그 자체가 버그 증거는 아닙니다.&quot;
+    }
+  }
+]</pre></details></article></details></section><section><h2>실패를 알려주지 않고 넘어갈 가능성이 있습니다 — 1곳</h2><p>UNCONFIRMED 1</p><p class="muted">d_review/policy.py: 1곳</p><p class="muted">같은 검증 패턴을 묶었습니다. 서로 다른 위치가 같은 실제 원인이라는 뜻은 아닙니다.</p>
+
+<details><summary>남은 의심·사람 검토 세부 보기</summary><article><p class="tag">🟡 아직 확인하지 못한 의심 · UNCONFIRMED</p><h3>실패를 알려주지 않고 넘어갈 가능성이 있습니다</h3><p class="muted">d_review/policy.py:8 · C-54d25ce56621</p>
+<h4>무슨 문제인가</h4><p>처리 실패를 사용자가 모를 수 있습니다.</p><h4>왜 처음 의심했나</h4><p>넓은 범위의 예외를 잡은 뒤 아무 동작 없이 넘어갑니다.</p>
+<h4>반대 검토는 무엇이었나</h4><p>상위 계층의 방어 코드나 의도된 실패 무시 정책이 있을 수 있습니다. 이 패턴만으로 버그라고 확정할 수 없습니다.</p><p></p>
+<h4>어떻게 실제로 검사했나</h4><p>안전하게 입증할 검증기가 아직 없습니다. 의심으로 남깁니다.</p><h4>무슨 결과가 나왔나 · 왜 이 판정인가</h4><p>안전한 객관적 검증이 없거나 지원 범위를 넘어 확인하지 못했습니다.</p><p>객관적 증거 없음 — 안전하게 입증하지 못했습니다.</p>
+<h4>개발자에게 전달할 내용</h4><textarea readonly aria-label="개발자에게 전달할 내용">d_review/policy.py:8 — 실패 입력과 제품의 오류 처리 규칙을 확인. 안전한 객관적 검증이 없거나 지원 범위를 넘어 확인하지 못했습니다.</textarea>
+<details><summary>기술 증거 펼치기</summary><pre>[
+  {
+    &quot;id&quot;: &quot;E-C-54d25ce56621&quot;,
+    &quot;claim_id&quot;: &quot;C-54d25ce56621&quot;,
+    &quot;kind&quot;: &quot;unsupported&quot;,
+    &quot;outcome&quot;: &quot;not_run&quot;,
+    &quot;description&quot;: &quot;안전하게 입증할 검증기가 아직 없습니다. 의심으로 남깁니다.&quot;,
+    &quot;source_sha256&quot;: &quot;9943d1fca34fd40eb4de40b916dfe3999c4e3883af1f65f33a6954fc8e09106d&quot;,
+    &quot;exit_code&quot;: null,
+    &quot;stdout&quot;: &quot;&quot;,
+    &quot;stderr&quot;: &quot;&quot;,
+    &quot;repetitions&quot;: 0,
+    &quot;details&quot;: {
+      &quot;source_excerpt&quot;: &quot;6:     try:\n7:         return 1\n8:     except Exception:\n9:         pass&quot;,
+      &quot;context_review&quot;: {
+        &quot;symbol_hint&quot;: &quot;&quot;,
+        &quot;references&quot;: [],
+        &quot;input_contract&quot;: &quot;not_proven&quot;,
+        &quot;dead_code&quot;: &quot;not_proven&quot;,
+        &quot;runtime_scope&quot;: &quot;JS primitive AST subset only&quot;,
+        &quot;note&quot;: &quot;문자열 검색으로 찾은 후보 문맥입니다. 호출 관계·테스트 커버리지의 증거로 쓰지 않습니다.&quot;
+      },
+      &quot;evidence_note&quot;: &quot;소스 참조는 의심 위치를 설명하며, 그 자체가 버그 증거는 아닙니다.&quot;
+    }
+  }
+]</pre></details></article></details></section>
+<details><summary>기존 테스트·검사 범위·품질 지표</summary><pre>{
+  &quot;project&quot;: {
+    &quot;languages&quot;: [
+      &quot;Python&quot;
+    ],
+    &quot;frameworks&quot;: [],
+    &quot;package_managers&quot;: [],
+    &quot;test_frameworks&quot;: [],
+    &quot;database&quot;: [],
+    &quot;docker&quot;: false,
+    &quot;file_count&quot;: 3,
+    &quot;commands&quot;: [
+      {
+        &quot;id&quot;: &quot;python-unittest&quot;,
+        &quot;display&quot;: &quot;python -B -m unittest discover -v&quot;,
+        &quot;execution&quot;: &quot;격리 실행을 켠 경우에만&quot;
+      }
+    ],
+    &quot;suggested_scripts&quot;: [],
+    &quot;typecheck&quot;: false,
+    &quot;command_safety&quot;: [],
+    &quot;source_structure&quot;: {
+      &quot;src_files&quot;: 0,
+      &quot;test_files&quot;: 0
+    },
+    &quot;tsconfig_files&quot;: [],
+    &quot;build&quot;: false,
+    &quot;lint&quot;: false,
+    &quot;skipped&quot;: [],
+    &quot;warnings&quot;: [],
+    &quot;coverage&quot;: &quot;Python 제한 검사 + Node/TypeScript AST 방어 분기·순수 함수 경계값 재현. 실제 앱 전체 실행/입력 계약은 별도 확인이 필요합니다.&quot;,
+    &quot;dependencies_present&quot;: false,
+    &quot;providers&quot;: {
+      &quot;investigator&quot;: &quot;offline-structural-mock-v1&quot;,
+      &quot;challenger&quot;: &quot;offline-structural-mock-v1&quot;
+    },
+    &quot;offline_mock&quot;: true,
+    &quot;provider_fallbacks&quot;: {
+      &quot;investigator&quot;: null,
+      &quot;challenger&quot;: null
+    },
+    &quot;llm_usage&quot;: {
+      &quot;investigator&quot;: {
+        &quot;attempted_calls&quot;: 0,
+        &quot;completed_calls&quot;: 0,
+        &quot;fallback_calls&quot;: 0,
+        &quot;context_truncated&quot;: false
+      },
+      &quot;challenger&quot;: {
+        &quot;attempted_calls&quot;: 0,
+        &quot;completed_calls&quot;: 0,
+        &quot;fallback_calls&quot;: 0,
+        &quot;context_truncated&quot;: false
+      }
+    },
+    &quot;execution_mode&quot;: &quot;SAFE_LOCAL_LIMITED&quot;,
+    &quot;duration_seconds&quot;: 0.014,
+    &quot;token_usage&quot;: {
+      &quot;investigator&quot;: null,
+      &quot;challenger&quot;: null
+    },
+    &quot;estimated_api_cost&quot;: null
+  },
+  &quot;suite&quot;: [
+    {
+      &quot;id&quot;: &quot;E-suite&quot;,
+      &quot;claim_id&quot;: null,
+      &quot;kind&quot;: &quot;isolated_suite&quot;,
+      &quot;outcome&quot;: &quot;skipped&quot;,
+      &quot;description&quot;: &quot;기존 테스트는 개별 Claim 판정과 별도로 기록합니다.&quot;,
+      &quot;source_sha256&quot;: &quot;&quot;,
+      &quot;exit_code&quot;: null,
+      &quot;stdout&quot;: &quot;&quot;,
+      &quot;stderr&quot;: &quot;&quot;,
+      &quot;repetitions&quot;: 0,
+      &quot;details&quot;: {
+        &quot;reason_code&quot;: &quot;SANDBOX_NOT_ENABLED&quot;,
+        &quot;message&quot;: &quot;격리 실행이 꺼져 있어 기존 테스트를 실행하지 않았습니다.&quot;
+      }
+    }
+  ],
+  &quot;metrics&quot;: {
+    &quot;total_claims&quot;: 4,
+    &quot;confirmed&quot;: 1,
+    &quot;refuted&quot;: 1,
+    &quot;unconfirmed&quot;: 1,
+    &quot;needs_human&quot;: 1,
+    &quot;confirmation_rate&quot;: 0.25,
+    &quot;refutation_rate&quot;: 0.25,
+    &quot;unresolved_rate&quot;: 0.5,
+    &quot;grouped_issues&quot;: 3,
+    &quot;executable_evidence_claims&quot;: 0,
+    &quot;guard_evaluation_claims&quot;: 0,
+    &quot;function_reproduction_claims&quot;: 0,
+    &quot;auditor_false_positive&quot;: null,
+    &quot;confirmed_reviewed&quot;: 0,
+    &quot;confirmed_review_pending&quot;: 1,
+    &quot;false_positive_rate&quot;: null,
+    &quot;ground_truth_note&quot;: &quot;반증된 최초 의심은 CONFIRMED 오탐과 다릅니다. Ground truth/사람 검토 전 오탐률은 미측정입니다.&quot;,
+    &quot;rule_initial_claims&quot;: 4,
+    &quot;llm_initial_claims&quot;: 0,
+    &quot;overlap&quot;: 0,
+    &quot;llm_only_claims&quot;: 0,
+    &quot;rule_only_claims&quot;: 4,
+    &quot;by_discovery&quot;: {
+      &quot;RULE&quot;: {
+        &quot;CONFIRMED&quot;: 1,
+        &quot;REFUTED&quot;: 1,
+        &quot;UNCONFIRMED&quot;: 1,
+        &quot;NEEDS_HUMAN&quot;: 1
+      },
+      &quot;LLM&quot;: {
+        &quot;CONFIRMED&quot;: 0,
+        &quot;REFUTED&quot;: 0,
+        &quot;UNCONFIRMED&quot;: 0,
+        &quot;NEEDS_HUMAN&quot;: 0
+      },
+      &quot;BOTH&quot;: {
+        &quot;CONFIRMED&quot;: 0,
+        &quot;REFUTED&quot;: 0,
+        &quot;UNCONFIRMED&quot;: 0,
+        &quot;NEEDS_HUMAN&quot;: 0
+      }
+    }
+  }
+}</pre></details><details><summary>감사 기록</summary><pre>[
+  {
+    &quot;sequence&quot;: 1,
+    &quot;time&quot;: &quot;2026-09-19T07:28:26.577837+00:00&quot;,
+    &quot;stage&quot;: &quot;Project Mapper&quot;
+  },
+  {
+    &quot;sequence&quot;: 2,
+    &quot;time&quot;: &quot;2026-09-19T07:28:26.589733+00:00&quot;,
+    &quot;stage&quot;: &quot;Snapshot&quot;,
+    &quot;files&quot;: 3,
+    &quot;skipped_categories&quot;: 0
+  },
+  {
+    &quot;sequence&quot;: 3,
+    &quot;time&quot;: &quot;2026-09-19T07:28:26.589741+00:00&quot;,
+    &quot;stage&quot;: &quot;Investigator&quot;
+  },
+  {
+    &quot;sequence&quot;: 4,
+    &quot;time&quot;: &quot;2026-09-19T07:28:26.590229+00:00&quot;,
+    &quot;stage&quot;: &quot;Challenger&quot;,
+    &quot;claims&quot;: 4
+  },
+  {
+    &quot;sequence&quot;: 5,
+    &quot;time&quot;: &quot;2026-09-19T07:28:26.590377+00:00&quot;,
+    &quot;stage&quot;: &quot;Challenge recorded&quot;,
+    &quot;claim_id&quot;: &quot;C-8e93b716506b&quot;
+  },
+  {
+    &quot;sequence&quot;: 6,
+    &quot;time&quot;: &quot;2026-09-19T07:28:26.590519+00:00&quot;,
+    &quot;stage&quot;: &quot;Challenge recorded&quot;,
+    &quot;claim_id&quot;: &quot;C-40267e896bcf&quot;
+  },
+  {
+    &quot;sequence&quot;: 7,
+    &quot;time&quot;: &quot;2026-09-19T07:28:26.590554+00:00&quot;,
+    &quot;stage&quot;: &quot;Challenge recorded&quot;,
+    &quot;claim_id&quot;: &quot;C-efdc031f9c54&quot;
+  },
+  {
+    &quot;sequence&quot;: 8,
+    &quot;time&quot;: &quot;2026-09-19T07:28:26.590585+00:00&quot;,
+    &quot;stage&quot;: &quot;Challenge recorded&quot;,
+    &quot;claim_id&quot;: &quot;C-54d25ce56621&quot;
+  },
+  {
+    &quot;sequence&quot;: 9,
+    &quot;time&quot;: &quot;2026-09-19T07:28:26.590586+00:00&quot;,
+    &quot;stage&quot;: &quot;Evidence Builder&quot;
+  },
+  {
+    &quot;sequence&quot;: 10,
+    &quot;time&quot;: &quot;2026-09-19T07:28:26.590594+00:00&quot;,
+    &quot;stage&quot;: &quot;Plan recorded&quot;,
+    &quot;claim_id&quot;: &quot;C-8e93b716506b&quot;,
+    &quot;kind&quot;: &quot;bounded_ast&quot;
+  },
+  {
+    &quot;sequence&quot;: 11,
+    &quot;time&quot;: &quot;2026-09-19T07:28:26.590598+00:00&quot;,
+    &quot;stage&quot;: &quot;Plan recorded&quot;,
+    &quot;claim_id&quot;: &quot;C-40267e896bcf&quot;,
+    &quot;kind&quot;: &quot;bounded_ast&quot;
+  },
+  {
+    &quot;sequence&quot;: 12,
+    &quot;time&quot;: &quot;2026-09-19T07:28:26.590600+00:00&quot;,
+    &quot;stage&quot;: &quot;Plan recorded&quot;,
+    &quot;claim_id&quot;: &quot;C-efdc031f9c54&quot;,
+    &quot;kind&quot;: &quot;human_review&quot;
+  },
+  {
+    &quot;sequence&quot;: 13,
+    &quot;time&quot;: &quot;2026-09-19T07:28:26.590603+00:00&quot;,
+    &quot;stage&quot;: &quot;Plan recorded&quot;,
+    &quot;claim_id&quot;: &quot;C-54d25ce56621&quot;,
+    &quot;kind&quot;: &quot;unsupported&quot;
+  },
+  {
+    &quot;sequence&quot;: 14,
+    &quot;time&quot;: &quot;2026-09-19T07:28:26.590604+00:00&quot;,
+    &quot;stage&quot;: &quot;Deterministic QA&quot;
+  },
+  {
+    &quot;sequence&quot;: 15,
+    &quot;time&quot;: &quot;2026-09-19T07:28:26.590752+00:00&quot;,
+    &quot;stage&quot;: &quot;Evidence recorded&quot;,
+    &quot;evidence_id&quot;: &quot;E-C-8e93b716506b&quot;,
+    &quot;claim_id&quot;: &quot;C-8e93b716506b&quot;,
+    &quot;outcome&quot;: &quot;observed&quot;
+  },
+  {
+    &quot;sequence&quot;: 16,
+    &quot;time&quot;: &quot;2026-09-19T07:28:26.590874+00:00&quot;,
+    &quot;stage&quot;: &quot;Evidence recorded&quot;,
+    &quot;evidence_id&quot;: &quot;E-C-40267e896bcf&quot;,
+    &quot;claim_id&quot;: &quot;C-40267e896bcf&quot;,
+    &quot;outcome&quot;: &quot;observed&quot;
+  },
+  {
+    &quot;sequence&quot;: 17,
+    &quot;time&quot;: &quot;2026-09-19T07:28:26.590900+00:00&quot;,
+    &quot;stage&quot;: &quot;Evidence recorded&quot;,
+    &quot;evidence_id&quot;: &quot;E-C-efdc031f9c54&quot;,
+    &quot;claim_id&quot;: &quot;C-efdc031f9c54&quot;,
+    &quot;outcome&quot;: &quot;human_required&quot;
+  },
+  {
+    &quot;sequence&quot;: 18,
+    &quot;time&quot;: &quot;2026-09-19T07:28:26.590923+00:00&quot;,
+    &quot;stage&quot;: &quot;Evidence recorded&quot;,
+    &quot;evidence_id&quot;: &quot;E-C-54d25ce56621&quot;,
+    &quot;claim_id&quot;: &quot;C-54d25ce56621&quot;,
+    &quot;outcome&quot;: &quot;not_run&quot;
+  },
+  {
+    &quot;sequence&quot;: 19,
+    &quot;time&quot;: &quot;2026-09-19T07:28:26.590929+00:00&quot;,
+    &quot;stage&quot;: &quot;Suite recorded&quot;,
+    &quot;outcome&quot;: &quot;skipped&quot;,
+    &quot;exit_code&quot;: null
+  },
+  {
+    &quot;sequence&quot;: 20,
+    &quot;time&quot;: &quot;2026-09-19T07:28:26.590931+00:00&quot;,
+    &quot;stage&quot;: &quot;Evidence Judge&quot;
+  },
+  {
+    &quot;sequence&quot;: 21,
+    &quot;time&quot;: &quot;2026-09-19T07:28:26.590941+00:00&quot;,
+    &quot;stage&quot;: &quot;Verdict recorded&quot;,
+    &quot;claim_id&quot;: &quot;C-8e93b716506b&quot;,
+    &quot;status&quot;: &quot;CONFIRMED&quot;,
+    &quot;evidence_ids&quot;: [
+      &quot;E-C-8e93b716506b&quot;
+    ]
+  },
+  {
+    &quot;sequence&quot;: 22,
+    &quot;time&quot;: &quot;2026-09-19T07:28:26.590947+00:00&quot;,
+    &quot;stage&quot;: &quot;Verdict recorded&quot;,
+    &quot;claim_id&quot;: &quot;C-40267e896bcf&quot;,
+    &quot;status&quot;: &quot;REFUTED&quot;,
+    &quot;evidence_ids&quot;: [
+      &quot;E-C-40267e896bcf&quot;
+    ]
+  },
+  {
+    &quot;sequence&quot;: 23,
+    &quot;time&quot;: &quot;2026-09-19T07:28:26.590950+00:00&quot;,
+    &quot;stage&quot;: &quot;Verdict recorded&quot;,
+    &quot;claim_id&quot;: &quot;C-efdc031f9c54&quot;,
+    &quot;status&quot;: &quot;NEEDS_HUMAN&quot;,
+    &quot;evidence_ids&quot;: [
+      &quot;E-C-efdc031f9c54&quot;
+    ]
+  },
+  {
+    &quot;sequence&quot;: 24,
+    &quot;time&quot;: &quot;2026-09-19T07:28:26.590953+00:00&quot;,
+    &quot;stage&quot;: &quot;Verdict recorded&quot;,
+    &quot;claim_id&quot;: &quot;C-54d25ce56621&quot;,
+    &quot;status&quot;: &quot;UNCONFIRMED&quot;,
+    &quot;evidence_ids&quot;: [
+      &quot;E-C-54d25ce56621&quot;
+    ]
+  },
+  {
+    &quot;sequence&quot;: 25,
+    &quot;time&quot;: &quot;2026-09-19T07:28:26.591903+00:00&quot;,
+    &quot;stage&quot;: &quot;Integrity checked&quot;,
+    &quot;status&quot;: &quot;UNCHANGED&quot;
+  },
+  {
+    &quot;sequence&quot;: 26,
+    &quot;time&quot;: &quot;2026-09-19T07:28:26.591915+00:00&quot;,
+    &quot;stage&quot;: &quot;Human-readable Report&quot;
+  },
+  {
+    &quot;sequence&quot;: 27,
+    &quot;time&quot;: &quot;2026-09-19T07:28:26.591921+00:00&quot;,
+    &quot;stage&quot;: &quot;Provider usage&quot;,
+    &quot;roles&quot;: {
+      &quot;investigator&quot;: {
+        &quot;attempted_calls&quot;: 0,
+        &quot;completed_calls&quot;: 0,
+        &quot;fallback_calls&quot;: 0,
+        &quot;context_truncated&quot;: false
+      },
+      &quot;challenger&quot;: {
+        &quot;attempted_calls&quot;: 0,
+        &quot;completed_calls&quot;: 0,
+        &quot;fallback_calls&quot;: 0,
+        &quot;context_truncated&quot;: false
+      }
+    },
+    &quot;fallbacks&quot;: {
+      &quot;investigator&quot;: null,
+      &quot;challenger&quot;: null
+    }
+  }
+]</pre></details></html>
