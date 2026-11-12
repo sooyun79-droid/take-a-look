@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "take-a-look-auditor"
-version = "0.3.0a1"
+version = "0.3.1a1"
 description = "Evidence-first, read-only local software auditor"
 requires-python = ">=3.11"
 dependencies = []

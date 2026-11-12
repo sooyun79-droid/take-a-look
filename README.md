@@ -1,6 +1,6 @@
 # 🐱 떼껄룩 — Take a Look
 
-**ALPHA SOFTWARE · v0.3.0-alpha**
+**ALPHA SOFTWARE · v0.3.1-alpha**
 
 AI로 프로그램은 만들었는데, 정말 제대로 만든 건지 모르겠나요?
 
@@ -59,7 +59,7 @@ pipx install git+https://github.com/sooyun79-droid/take-a-look.git
 
 ### 2) 내려받아 실행 (비개발자·Windows)
 
-[릴리스의 `take-a-look-v0.3.0-alpha.zip`](https://github.com/sooyun79-droid/take-a-look/releases/tag/v0.3.0-alpha)을 내려받아 압축을 풉니다. ZIP에는 Python zipapp(`take-a-look.pyz`), Windows 실행 파일, TypeScript 파서가 들어 있어 저장소를 clone할 필요가 없습니다. Python 3.11 이상은 필요합니다.
+[릴리스의 `take-a-look-v0.3.1-alpha.zip`](https://github.com/sooyun79-droid/take-a-look/releases/tag/v0.3.1-alpha)을 내려받아 압축을 풉니다. ZIP에는 Python zipapp(`take-a-look.pyz`), Windows 실행 파일, TypeScript 파서가 들어 있어 저장소를 clone할 필요가 없습니다. Python 3.11 이상은 필요합니다.
 
 Windows에서는 `Start-TakeALook.cmd`를 더블클릭하세요. macOS/Linux에서는 압축을 푼 폴더에서 실행합니다.
 

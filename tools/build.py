@@ -18,7 +18,7 @@ with tempfile.TemporaryDirectory() as directory:
 compiler=ROOT/'node_modules/typescript'
 if compiler.is_dir():
     shutil.copytree(compiler, destination.parent/'node_modules/typescript', dirs_exist_ok=True)
-archive=destination.parent/'take-a-look-v0.3.0-alpha.zip'
+archive=destination.parent/'take-a-look-v0.3.1-alpha.zip'
 with zipfile.ZipFile(archive,'w',compression=zipfile.ZIP_DEFLATED) as bundle:
     bundle.write(destination,destination.name)
     for name in ['README.md','LICENSE','THIRD_PARTY_NOTICES.md']:

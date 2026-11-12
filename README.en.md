@@ -1,4 +1,4 @@
-# Take a Look · v0.3.0-alpha
+# Take a Look · v0.3.1-alpha
 
 **ALPHA SOFTWARE**. AI found a bug? Take a Look tries to prove it first.
 
@@ -22,7 +22,7 @@ To keep it installed: `pipx install git+https://github.com/sooyun79-droid/take-a
 
 ### 2) Download (non-developers, Windows)
 
-Download `take-a-look-v0.3.0-alpha.zip` from the [release](https://github.com/sooyun79-droid/take-a-look/releases/tag/v0.3.0-alpha) and unzip it. On Windows double-click `Start-TakeALook.cmd`; on macOS/Linux run this inside the unzipped folder:
+Download `take-a-look-v0.3.1-alpha.zip` from the [release](https://github.com/sooyun79-droid/take-a-look/releases/tag/v0.3.1-alpha) and unzip it. On Windows double-click `Start-TakeALook.cmd`; on macOS/Linux run this inside the unzipped folder:
 
 ```text
 python3 -B take-a-look.pyz web --open

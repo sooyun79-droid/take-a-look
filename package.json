@@ -1,6 +1,6 @@
 {
   "name": "take-a-look-toolchain",
-  "version": "0.3.0-alpha",
+  "version": "0.3.1-alpha",
   "private": true,
   "description": "Pinned parser for read-only AST analysis; never resolve tools from audited repositories",
   "bin": {
