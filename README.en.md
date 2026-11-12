@@ -15,4 +15,26 @@ The UI is Korean. Enter a local project path. Offline rule discovery is the defa
 
 Verdicts: CONFIRMED, REFUTED, UNCONFIRMED, NEEDS_HUMAN. Discovery attribution: RULE, LLM, BOTH. Source hashes, evidence IDs, execution mode, call counts and available token usage are preserved. Unknown costs and unmeasured false-positive rates are null.
 
+### GitHub Action
+
+Verify AI-written pull requests in CI and post the result as a PR comment:
+
+```yaml
+name: Take a Look Audit
+on: [pull_request]
+permissions:
+  contents: read
+  pull-requests: write
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: sooyun79-droid/take-a-look@main
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+```
+
+No API key or pip package is needed; reports are written outside the checked-out folder and the same PR comment is updated on every run. Setup, inputs, exit codes and fork limitations are in [docs/github-action.md](docs/github-action.md) (Korean).
+
 See [Korean guide](README.md), [sample](docs/sample-report.md), [security](SECURITY.md), [evaluation](docs/benchmark-003.md), [contributing](CONTRIBUTING.md) and [MIT license](LICENSE). The separately installed TypeScript parser remains Apache-2.0.

@@ -54,6 +54,28 @@ python -B -m take_a_look audit fixtures/a_bug
 
 결과는 `reports/<검사번호>/report.html`에 저장됩니다. 보고서 폴더는 검사 대상 밖이어야 합니다. 확인된 문제가 있으면 CLI 종료 코드는 1, 보존 검사 실패 등 오류는 2입니다.
 
+## GitHub Action으로 PR 자동 검증
+
+AI로 만든 PR이 올라올 때 CI에서 한 번 더 확인하고 싶다면, 내 저장소의 `.github/workflows/take-a-look.yml`에 아래를 붙여넣으세요.
+
+```yaml
+name: Take a Look Audit
+on: [pull_request]
+permissions:
+  contents: read
+  pull-requests: write
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: sooyun79-droid/take-a-look@main
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+```
+
+검사 결과는 워크플로 Step Summary와 PR 코멘트에 판정별 개수·확인된 문제·검증 근거로 남습니다. 같은 PR에서 다시 돌면 코멘트를 새로 쌓지 않고 갱신합니다. API 키와 pip 패키지는 필요 없고, 보고서는 체크아웃한 폴더 밖에 만들어 원본을 건드리지 않습니다. `fail-on-confirmed`와 `comment-pr`로 실패 정책과 코멘트 여부를 바꿀 수 있습니다. 입력값·종료 코드·포크 PR 제한은 [GitHub Action 안내](docs/github-action.md)에 정리했습니다.
+
 ## 화면 예시
 
 [실제 fixture 샘플 보고서](docs/sample-report.html) · [쉽게 읽는 샘플 설명](docs/sample-report.md)

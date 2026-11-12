@@ -8,9 +8,9 @@ import shutil
 import subprocess
 
 ROOT=Path(__file__).resolve().parents[1]
-TOP={'README.md','README.en.md','LICENSE','THIRD_PARTY_NOTICES.md','CONTRIBUTING.md','SECURITY.md','.gitignore','pyproject.toml','package.json','package-lock.json','tsconfig.json','Start-TakeALook.cmd'}
+TOP={'README.md','README.en.md','LICENSE','THIRD_PARTY_NOTICES.md','CONTRIBUTING.md','SECURITY.md','.gitignore','pyproject.toml','package.json','package-lock.json','tsconfig.json','Start-TakeALook.cmd','action.yml'}
 DIRS={'take_a_look','tests','tests-node','fixtures','docs','.github'}
-TOOLS={'build.py','check.py','public_export.py'}
+TOOLS={'build.py','check.py','public_export.py','github_action_reporter.py'}
 SYNTHETIC={'sk-SYNTHETIC_FIXTURE','sk-SYNTHETIC_FIXTURE_NOT_A_REAL_KEY_123456','sk-abcdefghijklmnopqrst','ghp_abcdefghijklmnop','sk-SYNTHETIC_FIXTURE_NOT_A_REAL_CREDENTIAL','sk-SYNTHETIC_FIXTURE_DO_NOT_USE','sk-SYNTHETIC_FIXTURE_NOT_REAL','sk-DO_NOT_SEND_THIS'}
 
 

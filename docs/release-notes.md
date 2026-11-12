@@ -10,5 +10,6 @@ Release candidate: v0.3.0-alpha. First public alpha preparation; publication sta
 - Offline mock and opt-in OpenAI adapter.
 - Korean local UI, grouped findings and readable evidence.
 - Prompt-injection, command-policy and secret-redaction fixtures.
+- Composite GitHub Action (`.github/workflows` sample in `docs/github-action.md`): audits pull requests, writes the Step Summary and upserts one PR comment; no API key or pip package, reports kept outside the checkout.
 
 Limitations: no real API evaluation in this environment; Docker integration not validated; bounded checks are not app-wide execution or security assurance. No auto-fix, telemetry, deployment or private-repository authentication.

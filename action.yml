@@ -1,0 +1,85 @@
+name: Take a Look - AI Code Verifier
+description: Proves or refutes suspected bugs in AI-generated code before human review
+
+branding:
+  icon: eye
+  color: purple
+
+inputs:
+  path:
+    description: 검사할 경로. 저장소 루트(GITHUB_WORKSPACE) 기준
+    required: false
+    default: .
+  python-version:
+    description: 검사에 사용할 Python 버전
+    required: false
+    default: '3.11'
+  comment-pr:
+    description: PR에 검사 결과 코멘트를 남길지 여부. 기존 코멘트는 갱신
+    required: false
+    default: 'true'
+  fail-on-confirmed:
+    description: CONFIRMED 결함이 있으면 액션을 실패시킬지 여부
+    required: false
+    default: 'true'
+  github-token:
+    description: PR 코멘트 작성에 사용할 토큰
+    required: false
+    default: ${{ github.token }}
+
+outputs:
+  report-path:
+    description: 생성된 report.json 경로
+    value: ${{ steps.report.outputs.report-path }}
+  confirmed:
+    description: CONFIRMED 판정 개수
+    value: ${{ steps.report.outputs.confirmed }}
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Audit with Take a Look
+      id: audit
+      shell: bash
+      env:
+        TAKE_A_LOOK_PATH: ${{ inputs.path }}
+        TAKE_A_LOOK_OUTPUT: ${{ runner.temp }}/take-a-look-reports
+        PYTHONPATH: ${{ github.action_path }}
+        PYTHONUTF8: '1'
+      run: |
+        set -uo pipefail
+        target="$(cd "$GITHUB_WORKSPACE" && cd -- "$TAKE_A_LOOK_PATH" && pwd)" || {
+          echo "::error::검사 경로를 찾지 못했습니다: $TAKE_A_LOOK_PATH"
+          echo "exit-code=2" >> "$GITHUB_OUTPUT"
+          exit 0
+        }
+        rm -rf "$TAKE_A_LOOK_OUTPUT"
+        # 대상 저장소의 같은 이름 폴더가 떼껄룩 모듈을 가로채지 않도록 액션 폴더에서 실행한다.
+        cd "$GITHUB_ACTION_PATH"
+        status=0
+        python -B -m take_a_look audit "$target" --output "$TAKE_A_LOOK_OUTPUT" || status=$?
+        echo "exit-code=$status" >> "$GITHUB_OUTPUT"
+        if [ "$status" -ge 2 ]; then
+          echo "::error::떼껄룩이 검사를 완료하지 못했습니다 (exit $status). 위 로그를 확인하세요."
+        fi
+
+    - name: Publish report
+      id: report
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        TAKE_A_LOOK_REPORTS: ${{ runner.temp }}/take-a-look-reports
+        TAKE_A_LOOK_AUDIT_EXIT_CODE: ${{ steps.audit.outputs.exit-code }}
+        TAKE_A_LOOK_COMMENT: ${{ inputs.comment-pr }}
+        TAKE_A_LOOK_FAIL: ${{ inputs.fail-on-confirmed }}
+      run: |
+        set -uo pipefail
+        python -B "$GITHUB_ACTION_PATH/tools/github_action_reporter.py" "$TAKE_A_LOOK_REPORTS" \
+          --audit-exit-code "${TAKE_A_LOOK_AUDIT_EXIT_CODE:-0}" \
+          --comment-pr "${TAKE_A_LOOK_COMMENT}" \
+          --fail-on-confirmed "${TAKE_A_LOOK_FAIL}"
