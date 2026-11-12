@@ -87,6 +87,7 @@ class V03Tests(unittest.TestCase):
         self.assertFalse(any(p.startswith(('benchmarks/','private-artifacts/','reports/','.git/')) for p in paths))
         self.assertNotIn('tools/benchmark_searchlens.py',paths)
         self.assertIn('take_a_look/pipeline.py',paths)
+        self.assertIn('bin/take-a-look.mjs',paths)
 
     def test_public_hygiene_blocks_personal_paths_and_unknown_tokens(self):
         from tools.public_export import inspect_text

@@ -11,6 +11,7 @@ ROOT=Path(__file__).resolve().parents[1]
 TOP={'README.md','README.en.md','LICENSE','THIRD_PARTY_NOTICES.md','CONTRIBUTING.md','SECURITY.md','.gitignore','pyproject.toml','package.json','package-lock.json','tsconfig.json','Start-TakeALook.cmd','action.yml'}
 DIRS={'take_a_look','tests','tests-node','fixtures','docs','.github'}
 TOOLS={'build.py','check.py','public_export.py','github_action_reporter.py'}
+FILES={'bin/take-a-look.mjs'}
 SYNTHETIC={'sk-SYNTHETIC_FIXTURE','sk-SYNTHETIC_FIXTURE_NOT_A_REAL_KEY_123456','sk-abcdefghijklmnopqrst','ghp_abcdefghijklmnop','sk-SYNTHETIC_FIXTURE_NOT_A_REAL_CREDENTIAL','sk-SYNTHETIC_FIXTURE_DO_NOT_USE','sk-SYNTHETIC_FIXTURE_NOT_REAL','sk-DO_NOT_SEND_THIS'}
 
 
@@ -29,7 +30,7 @@ def selected(root=ROOT):
         if not p.is_file() or p.is_symlink():continue
         relative=p.relative_to(root)
         if any(x in {'__pycache__','node_modules','.git','.cache','.release','.venv'} for x in relative.parts):continue
-        if len(relative.parts)==1 and p.name in TOP or relative.parts[0] in DIRS or relative.parts[0]=='tools' and p.name in TOOLS:
+        if len(relative.parts)==1 and p.name in TOP or relative.parts[0] in DIRS or relative.parts[0]=='tools' and p.name in TOOLS or relative.as_posix() in FILES:
             if p.suffix=='.pyc' or p.name.startswith('.env') and p.name!='.env.example':continue
             yield relative,p
 

@@ -4,7 +4,31 @@
 
 A read-only local auditor for people who built software with AI. It separates hypotheses, independent challenges, deterministic evidence and verdicts. LLM confidence alone never confirms a bug.
 
-Python 3.11+ and Node 20+ are prerequisites. From this project's folder:
+## Quick start
+
+### 1) One-line run (recommended)
+
+No clone and no `git pull`. The `npx` form needs Node 20+ and finds Python itself; Python 3.11+ is required either way, because the auditor is a Python program (npm does not install Python).
+
+```text
+# with Python 3.11+ (pipx)
+pipx run --spec git+https://github.com/sooyun79-droid/take-a-look.git take-a-look audit <folder>
+
+# with Node 20+ (npx)
+npx github:sooyun79-droid/take-a-look audit <folder>
+```
+
+To keep it installed: `pipx install git+https://github.com/sooyun79-droid/take-a-look.git`, then run `take-a-look audit <folder>`. Reports are written to `reports/<id>/report.html` under the folder you ran it in; exit code 1 means confirmed findings, 2 means the audit could not run (path, permission or size), and a missing or older Python stops with exit code 1 after a setup hint.
+
+### 2) Download (non-developers, Windows)
+
+Download `take-a-look-v0.3.0-alpha.zip` from the [release](https://github.com/sooyun79-droid/take-a-look/releases/tag/v0.3.0-alpha) and unzip it. On Windows double-click `Start-TakeALook.cmd`; on macOS/Linux run this inside the unzipped folder:
+
+```text
+python3 -B take-a-look.pyz web --open
+```
+
+The ZIP carries the Python zipapp and the TypeScript parser, so no clone or `npm ci` is needed; Python 3.11+ is still required. Running from a source checkout instead:
 
 ```text
 npm ci --ignore-scripts --no-audit --no-fund
@@ -15,7 +39,11 @@ The UI is Korean. Enter a local project path. Offline rule discovery is the defa
 
 Verdicts: CONFIRMED, REFUTED, UNCONFIRMED, NEEDS_HUMAN. Discovery attribution: RULE, LLM, BOTH. Source hashes, evidence IDs, execution mode, call counts and available token usage are preserved. Unknown costs and unmeasured false-positive rates are null.
 
-### GitHub Action
+### 3) GitHub Action (CI/CD)
+
+Audit every pull request and report into the PR comment and Step Summary. Paste the three workflow lines from the next section; inputs, exit codes and fork limits are in [docs/github-action.md](docs/github-action.md).
+
+## GitHub Action for pull requests
 
 Verify AI-written pull requests in CI and post the result as a PR comment:
 

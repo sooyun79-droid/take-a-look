@@ -37,22 +37,49 @@ AI로 프로그램은 만들었는데, 정말 제대로 만든 건지 모르겠�
 
 ## 1분 실행 방법
 
-Python 3.11 이상과 Node 20 이상이 설치된 환경에서, 저장소를 내려받아 **떼껄룩 폴더 안에서** 실행하세요.
+### 1) 한 줄 실행 (추천)
+
+저장소를 clone하거나 git pull 하지 않고, 터미널 명령 한 줄로 바로 검사합니다.
+
+```text
+# Python 3.11 이상이 있다면 (pipx)
+pipx run --spec git+https://github.com/sooyun79-droid/take-a-look.git take-a-look audit <검사할 폴더>
+
+# Node 20 이상이 있다면 (npx) — 내부에서 Python 3.11 이상을 찾아 실행합니다
+npx github:sooyun79-droid/take-a-look audit <검사할 폴더>
+```
+
+계속 쓰려면 한 번만 설치해 두세요. 설치 후에는 `take-a-look audit <검사할 폴더>`로 실행합니다.
+
+```text
+pipx install git+https://github.com/sooyun79-droid/take-a-look.git
+```
+
+`npx`는 Python을 대신 설치하지 않습니다. Python이 없거나 3.11보다 낮으면 설치 안내를 출력하고 종료 코드 1로 끝납니다. 결과는 명령을 실행한 위치의 `reports/<검사번호>/report.html`에 저장되고, 확인된 문제가 있으면 종료 코드 1, 경로·권한·용량 문제는 2입니다. 보고서 폴더는 검사 대상 밖이어야 합니다.
+
+### 2) 내려받아 실행 (비개발자·Windows)
+
+[릴리스의 `take-a-look-v0.3.0-alpha.zip`](https://github.com/sooyun79-droid/take-a-look/releases/tag/v0.3.0-alpha)을 내려받아 압축을 풉니다. ZIP에는 Python zipapp(`take-a-look.pyz`), Windows 실행 파일, TypeScript 파서가 들어 있어 저장소를 clone할 필요가 없습니다. Python 3.11 이상은 필요합니다.
+
+Windows에서는 `Start-TakeALook.cmd`를 더블클릭하세요. macOS/Linux에서는 압축을 푼 폴더에서 실행합니다.
+
+```text
+python3 -B take-a-look.pyz web --open
+```
+
+‘검사할 프로그램을 선택하세요’ 아래에 **폴더 경로를 입력**하고 ‘한번 봐줘’를 누르세요. 브라우저 파일 업로드나 폴더 선택 대화상자는 사용하지 않습니다. 화면은 내 컴퓨터의 `http://127.0.0.1:8765`에 열립니다. 종료는 서버 창에서 Ctrl+C입니다. API 키는 필요하지 않습니다. Node 분석 도구가 없으면 해당 검사를 미확인으로 표시하고, 대상 프로그램의 패키지를 자동 설치하지 않습니다.
+
+저장소를 직접 받아 쓰는 경우에는 폴더 안에서 실행합니다.
 
 ```text
 npm ci --ignore-scripts --no-audit --no-fund
 python -B -m take_a_look web --open
-```
-
-Windows에서는 분석 도구 설치 후 `Start-TakeALook.cmd`를 더블클릭해도 됩니다. ‘검사할 프로그램을 선택하세요’ 아래에 **폴더 경로를 입력**하고 ‘한번 봐줘’를 누르세요. 브라우저 파일 업로드나 폴더 선택 대화상자는 사용하지 않습니다.
-
-화면은 내 컴퓨터의 `http://127.0.0.1:8765`에 열립니다. 종료는 서버 창에서 Ctrl+C입니다. API 키는 필요하지 않습니다. Node 분석 도구가 없으면 해당 검사를 미확인으로 표시합니다. 대상 프로그램의 패키지를 자동 설치하지 않습니다.
-
-```text
 python -B -m take_a_look audit fixtures/a_bug
 ```
 
-결과는 `reports/<검사번호>/report.html`에 저장됩니다. 보고서 폴더는 검사 대상 밖이어야 합니다. 확인된 문제가 있으면 CLI 종료 코드는 1, 보존 검사 실패 등 오류는 2입니다.
+### 3) GitHub Action (CI/CD)
+
+PR이 올라올 때마다 자동으로 검사하고 결과를 PR 코멘트와 Step Summary에 남깁니다. 아래 ‘GitHub Action으로 PR 자동 검증’ 절의 워크플로 세 줄을 내 저장소에 붙여넣으면 되고, 입력값·종료 코드·포크 PR 제한은 [GitHub Action 안내](docs/github-action.md)에 정리했습니다.
 
 ## GitHub Action으로 PR 자동 검증
 
