@@ -1,0 +1,27 @@
+name: Hosted Action smoke
+on: [push]
+permissions:
+  contents: read
+jobs:
+  action:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Verify bundled analyzer is used
+        run: |
+          test ! -d node_modules
+          node -e "console.log('Bundled TypeScript ' + require('./take_a_look/vendor/typescript.js').version)"
+      - uses: ./
+        id: audit
+        with:
+          path: fixtures/v02/d_bug
+          comment-pr: 'false'
+      - name: Verify default policy and confirmed finding
+        env:
+          CONFIRMED: ${{ steps.audit.outputs.confirmed }}
+        run: |
+          test "$CONFIRMED" = 1
+          echo "Default Action succeeded with CONFIRMED=$CONFIRMED"
