@@ -114,8 +114,8 @@ class CommentTests(unittest.TestCase):
 
 class ExitCodeTests(unittest.TestCase):
     def test_confirmed_fails_when_policy_is_true(self):
-        self.assertEqual(reporter.decide_exit_code(make_report(confirmed=1)), 1)
-        self.assertEqual(reporter.decide_exit_code(make_report(confirmed=1), fail_on_confirmed=False), 0)
+        self.assertEqual(reporter.decide_exit_code(make_report(confirmed=1), fail_on_confirmed=True), 1)
+        self.assertEqual(reporter.decide_exit_code(make_report(confirmed=1)), 0)
 
     def test_clean_report_passes(self):
         self.assertEqual(reporter.decide_exit_code(make_report(confirmed=0, refuted=1)), 0)
@@ -124,7 +124,13 @@ class ExitCodeTests(unittest.TestCase):
     def test_incomplete_audit_always_fails(self):
         self.assertEqual(reporter.decide_exit_code(make_report(confirmed=0), audit_exit_code=2), 2)
         self.assertEqual(reporter.decide_exit_code(None), 2)
-        self.assertEqual(reporter.decide_exit_code(make_report(confirmed=0), audit_exit_code=1, fail_on_confirmed=False), 0)
+        self.assertEqual(reporter.decide_exit_code(make_report(confirmed=0), audit_exit_code=1, fail_on_confirmed=False), 2)
+        self.assertEqual(reporter.decide_exit_code(make_report(confirmed=0), audit_exit_code=1, fail_on_confirmed=True), 2)
+        report = make_report(confirmed=1)
+        report['project']['verification_status'] = 'INCOMPLETE'
+        self.assertEqual(reporter.decide_exit_code(report), 2)
+        self.assertEqual(reporter.decide_exit_code(report, fail_on_confirmed=True), 2)
+        self.assertIn('검사 미완료', reporter.render_summary(report))
 
 
 class ReportLocationTests(unittest.TestCase):
@@ -243,7 +249,7 @@ class MainTests(unittest.TestCase):
                 code = reporter.main([str(root / "reports")], environ=environ)
             text = summary.read_text(encoding="utf-8")
             outputs = output.read_text(encoding="utf-8")
-        self.assertEqual(code, 1)
+        self.assertEqual(code, 0)
         self.assertIn("떼껄룩 검사 결과", text)
         self.assertIn("### 🔴 확인된 문제 1건", text)
         self.assertIn("report-path=", outputs)
@@ -308,6 +314,8 @@ class ActionManifestTests(unittest.TestCase):
             self.assertIn(line, self.text)
         for default in ("default: .", "default: '3.11'", "default: 'true'", "default: ${{ github.token }}"):
             self.assertIn(default, self.text)
+        self.assertIn("  fail-on-confirmed:\n    description:", self.text)
+        self.assertIn("명시적으로 true를 선택할 때만 적용\n    required: false\n    default: 'false'", self.text)
 
     def test_every_referenced_input_is_declared(self):
         declared = {"path", "python-version", "comment-pr", "fail-on-confirmed", "github-token"}

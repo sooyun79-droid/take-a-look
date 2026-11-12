@@ -135,7 +135,7 @@ class EvidenceBuilder:
             "unsupported": "안전하게 입증할 검증기가 아직 없습니다. 의심으로 남깁니다.",
             'contract_check':'사용자가 별도로 제공한 기대값과 허용된 함수 계산을 비교합니다. LLM의 기대값은 사용하지 않습니다.',
             'node_boundary': '원본을 실행하지 않고 TypeScript AST의 길이 0 방어 분기 또는 허용된 함수 본문을 JavaScript 연산으로 5회 확인합니다.',
-            'static_pattern': '원본 코드를 실행하지 않고, 같은 파일 원문에서 이 규칙의 고정 패턴이 해당 줄에 실제로 있는지 다시 확인합니다. 주석 안의 문구는 제외합니다.',
+            'static_pattern': '원본 코드를 실행하지 않고 고정 패턴의 존재만 다시 확인합니다. 패턴은 실제 결함의 증명이 아니며, 의도와 실행 맥락은 별도 검증이 필요합니다.',
         }[kind],INTENTS[kind])
 
 
@@ -169,7 +169,7 @@ class EvidenceJudge:
                 d = e.details
                 if d.get('engine') == 'web-static-pattern-v1' and d.get('rule') == claim.rule and d.get('line') == claim.line:
                     if e.outcome == 'found':
-                        status, reason = Status.CONFIRMED, '같은 파일 원문에서 이 규칙의 고정 패턴이 해당 줄에 확인되었습니다. 패턴 존재에 한정된 판정이며, 실제 배포 의도·서버 검증·앱 전체 영향은 별도 확인이 필요합니다.'
+                        status, reason = Status.UNCONFIRMED, '같은 파일에 의심 패턴이 존재하지만 실제 결함은 입증되지 않았습니다. 배포 의도·서버 검증·실행 경로를 확인해야 합니다.'
                     elif e.outcome == 'absent':
                         status, reason = Status.REFUTED, '같은 파일 원문의 해당 줄에서 이 규칙의 고정 패턴을 찾지 못했습니다. 주석이나 문자열, 또는 다른 위치일 수 있으며 이 위치의 의심만 반증합니다.'
             if claim.rule == "product_policy" and e.kind == "human_review":

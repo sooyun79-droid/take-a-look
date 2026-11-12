@@ -19,9 +19,9 @@ inputs:
     required: false
     default: 'true'
   fail-on-confirmed:
-    description: CONFIRMED 결함이 있으면 액션을 실패시킬지 여부
+    description: CONFIRMED 결함이 있으면 액션을 실패시킬지 여부. 명시적으로 true를 선택할 때만 적용
     required: false
-    default: 'true'
+    default: 'false'
   github-token:
     description: PR 코멘트 작성에 사용할 토큰
     required: false

@@ -102,11 +102,14 @@ def findings(report):
     return rows
 
 
-def decide_exit_code(report, audit_exit_code=0, fail_on_confirmed=True):
+def decide_exit_code(report, audit_exit_code=0, fail_on_confirmed=False):
     """0 통과, 1 정책에 따른 결함 발견, 2 검사 미완료."""
-    if report is None or audit_exit_code not in (0, 1):
+    if report is None or audit_exit_code not in (0, 1) or (report.get('project') or {}).get('verification_status') == 'INCOMPLETE':
         return 2
-    if counts(report)["CONFIRMED"] or audit_exit_code == 1:
+    confirmed = counts(report)["CONFIRMED"]
+    if audit_exit_code == 1 and not confirmed:
+        return 2
+    if confirmed:
         return 1 if fail_on_confirmed else 0
     return 0
 
@@ -141,6 +144,9 @@ def render_summary(report, limit=MAX_ITEMS):
     if integrity and integrity != "UNCHANGED":
         lines.append("")
         lines.append(f"⚠️ 검사 중 원본 파일 무결성 상태가 `{integrity}`로 바뀌었습니다. 결과를 신뢰하기 전에 확인하세요.")
+    if (report.get('project') or {}).get('verification_status') == 'INCOMPLETE':
+        lines.append("")
+        lines.append("⚠️ 검사 미완료: Node/TypeScript 분석기가 없거나 실패했습니다. 아래 판정은 완료된 범위에만 해당하며 이 실행은 실패 코드 2로 끝납니다.")
     lines.append("")
 
     confirmed = [row for row in rows if row["status"] == "CONFIRMED"]
@@ -329,7 +335,7 @@ def main(argv=None, environ=None):
     parser.add_argument("report", nargs="?", default=".", help="report.json 파일 또는 검사 결과 폴더")
     parser.add_argument("--audit-exit-code", type=int, default=0, help="검사 단계의 종료 코드 (0 정상, 1 결함, 2 미완료)")
     parser.add_argument("--comment-pr", default="true", help="PR 코멘트 작성 여부")
-    parser.add_argument("--fail-on-confirmed", default="true", help="CONFIRMED가 있으면 실패로 처리할지 여부")
+    parser.add_argument("--fail-on-confirmed", default="false", help="CONFIRMED가 있으면 실패로 처리할지 여부")
     args = parser.parse_args(argv)
 
     path = find_report(args.report)

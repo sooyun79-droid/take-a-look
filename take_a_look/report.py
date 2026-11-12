@@ -46,11 +46,12 @@ def render(report:Report)->str:
     narrative=f'{origin}에서 처음 {len(report.claims)}개를 의심했습니다. 반박과 객관적 검사를 거친 뒤 {report.summary["CONFIRMED"]}개가 지원 범위에서 문제로 확인되었습니다.'
     if not report.summary['CONFIRMED']:
         narrative+=' 현재 검사 범위에서는 실제 문제로 확인된 항목이 없습니다.'
+    incomplete='<p role="alert">⚠️ 검사 미완료: Node/TypeScript 분석기가 없거나 실패해 일부 검사를 끝내지 못했습니다. 아래 판정 개수는 완료된 범위에만 해당합니다.</p>' if report.project.get('verification_status')=='INCOMPLETE' else ''
     suite=[sanitize(e.__dict__) for e in report.evidence if e.claim_id is None]
     details={'project':report.project,'suite':suite,'metrics':report.metrics}
     return f'''<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>떼껄룩 검사 결과</title>
 <style>body{{font:16px/1.7 system-ui,sans-serif;max-width:960px;margin:32px auto;padding:0 20px;color:#202932;background:#f8fafb}}h1{{font-size:30px}}h2{{font-size:21px}}h3{{font-size:18px}}h4{{margin-bottom:0}}section,.summary{{background:white;border:1px solid #dce3e8;border-radius:12px;padding:22px;margin:20px 0}}article{{border-top:1px solid #dce3e8;padding:18px 0}}.summary span{{display:inline-block;margin:8px 20px 8px 0}}.muted{{color:#526472;font-size:14px}}pre{{white-space:pre-wrap;overflow-wrap:anywhere;background:#eef2f5;padding:15px}}details{{margin:14px 0}}summary{{cursor:pointer;font-weight:650}}textarea{{width:100%;min-height:100px;box-sizing:border-box;font:14px/1.6 system-ui;padding:10px}}p{{overflow-wrap:anywhere}}.tag{{font-weight:700}}</style>
-<h1>떼껄룩 검사 결과 <small>Take a Look v0.3 Alpha</small></h1><div class="summary">{summary}<p>{esc(narrative)}</p></div>
+<h1>떼껄룩 검사 결과 <small>Take a Look v0.3 Alpha</small></h1><div class="summary">{summary}{incomplete}<p>{esc(narrative)}</p></div>
 <p>의심 개수는 실제 문제 개수가 아닙니다. 문제가 0개여도 전체 검증 통과를 뜻하지 않습니다.</p><p>{esc(report.project['coverage'])}</p>
 <p>실행 방식: {esc(report.project.get("execution_mode","NO_EXECUTION"))}</p><p>발견 출처: 규칙 {report.metrics.get("rule_initial_claims",0)} · LLM {report.metrics.get("llm_initial_claims",0)} · 겹침 {report.metrics.get("overlap",0)}</p><p>실제 LLM 완료 호출: {real_calls}회 · 원본 보존: {esc(report.integrity['status'])}</p>
 {''.join(sections) if report.claims else '<section>지원 범위에서 의심을 찾지 못했습니다. 전체 검증 통과를 뜻하지 않습니다.</section>'}

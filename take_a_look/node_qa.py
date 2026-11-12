@@ -15,13 +15,26 @@ def toolchain_root():
     return Path(__file__).resolve().parents[1]
 
 
+def compiler_path():
+    # Installed Python/npm packages and the composite action carry their own
+    # pinned parser. The existing ZIP keeps its parser in the sidecar directory.
+    if '.pyz' not in str(__file__):
+        bundled = Path(__file__).resolve().parent / 'vendor/typescript.js'
+        if bundled.is_file():
+            return bundled
+    return toolchain_root() / 'node_modules/typescript/lib/typescript.js'
+
+
+def toolchain_available():
+    return bool(shutil.which('node') and compiler_path().is_file())
+
+
 def node_probe(source, file, line, workspace=None):
     node = shutil.which('node')
-    root = toolchain_root()
-    compiler = root / 'node_modules/typescript/lib/typescript.js'
+    compiler = compiler_path()
     if not node or not compiler.is_file():
         return {'outcome': 'unsupported', 'reason_code': 'NODE_TOOLCHAIN_UNAVAILABLE', 'cases': []}
-    work = Path(workspace) if workspace else root / '.takealook-work'
+    work = Path(workspace) if workspace else toolchain_root() / '.takealook-work'
     directory = work / uuid4().hex
     directory.mkdir(parents=True)
     worker = directory / 'worker.mjs'

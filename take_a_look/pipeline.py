@@ -17,6 +17,7 @@ from .runner import run_suite
 from .safety import collect, hashes, is_link, outside_target, text_sources
 from .schema import Report, Status
 from .webrules import WEB_RULES
+from .node_qa import toolchain_available
 from .llm import configured_provider
 from .grouping import group_claims, metrics
 from .safety import redact
@@ -109,6 +110,16 @@ class Auditor:
             event("Evidence recorded", evidence_id=item.id, claim_id=claim.id, outcome=item.outcome)
         evidence.append(run_suite(files, sandbox_image, suite, target_root=root))
         event("Suite recorded", outcome=evidence[-1].outcome, exit_code=evidence[-1].exit_code)
+        node_files = any(name.endswith(('.js', '.jsx', '.ts', '.tsx')) for name in sources)
+        node_failures = {'NODE_TOOLCHAIN_UNAVAILABLE', 'NODE_WORKER_FAILED', 'NODE_WORKER_UNAVAILABLE'}
+        incomplete = (node_files and not toolchain_available()) or any(
+            item.kind == 'node_boundary' and item.details.get('reason_code') in node_failures
+            for item in evidence
+        )
+        project_map['verification_status'] = 'INCOMPLETE' if incomplete else 'COMPLETE'
+        if incomplete:
+            project_map['warnings'].append('Node/TypeScript 분석기가 없거나 실패해 이 언어의 검사를 완료하지 못했습니다. 성공 판정으로 취급하지 마세요.')
+            event('Verification incomplete', reason_code='NODE_TOOLCHAIN_UNAVAILABLE_OR_FAILED')
         event("Evidence Judge")
         for claim in claims:
             verdict = self.judge.judge(claim, evidence)

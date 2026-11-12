@@ -40,7 +40,8 @@ def main():
             print(f"{status}: {count}")
         print(f"보고서: {directory / 'report.html'}")
         print(f"원본: {report.integrity['status']}")
-        return 2 if report.integrity["status"] != "UNCHANGED" else 1 if report.summary["CONFIRMED"] else 0
+        print(f"검사 상태: {report.project['verification_status']}")
+        return 2 if report.integrity["status"] != "UNCHANGED" or report.project['verification_status'] == 'INCOMPLETE' else 1 if report.summary["CONFIRMED"] else 0
     except (OSError, ValueError):
         print("검증을 완료하지 못했습니다. 경로·권한·용량·격리 설정을 확인하세요. 보고서 위치는 대상 폴더 밖이어야 합니다.", file=sys.stderr)
         return 2

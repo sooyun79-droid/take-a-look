@@ -102,7 +102,7 @@ def create_server(port=8765, output="reports"):
                 try:
                     report, directory = Auditor().run(payload["path"].strip(), output, progress=update)
                     with lock:
-                        jobs[key] = {"status": "done", "stage": "완료", "summary": report.summary, "html": (directory / "report.html").read_text(encoding="utf-8")}
+                        jobs[key] = {"status": "done", "stage": "완료", "verification_status": report.project['verification_status'], "summary": report.summary, "html": (directory / "report.html").read_text(encoding="utf-8")}
                 except Exception:
                     with lock:
                         jobs[key] = {"status": "failed", "error": "검사를 완료하지 못했습니다. 실제 폴더인지, 접근 권한이 있는지, 보고서 위치가 대상 폴더 밖인지 확인하세요. 파일 수·크기 제한도 적용됩니다."}

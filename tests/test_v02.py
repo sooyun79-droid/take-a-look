@@ -1,6 +1,7 @@
 import json
 import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 from dataclasses import replace
 from take_a_look.pipeline import Auditor
@@ -34,6 +35,16 @@ class V02Tests(unittest.TestCase):
                 if name=='d_bug':
                     self.assertEqual(len(report.regression_candidates[0]['observed']),5)
                     self.assertEqual(report.regression_candidates[0]['observed'][0]['output'],'NaN')
+
+    def test_missing_node_analyzer_is_reported_as_incomplete(self):
+        from take_a_look import node_qa
+        with patch.object(node_qa, 'compiler_path', return_value=Path(self.temp.name) / 'missing-parser.js'), \
+             patch('take_a_look.pipeline.toolchain_available', return_value=False):
+            report, where = Auditor().run(ROOT / 'fixtures/v02/d_bug', Path(self.temp.name) / 'missing-toolchain')
+        self.assertEqual(report.summary['UNCONFIRMED'], 1)
+        self.assertEqual(report.project['verification_status'], 'INCOMPLETE')
+        self.assertEqual(report.evidence[0].details['reason_code'], 'NODE_TOOLCHAIN_UNAVAILABLE')
+        self.assertIn('검사 미완료', (where / 'report.html').read_text(encoding='utf8'))
 
     def test_no_key_falls_back_without_network(self):
         p=configured_provider('investigator',{'TAKEALOOK_LLM_PROVIDER':'openai'})

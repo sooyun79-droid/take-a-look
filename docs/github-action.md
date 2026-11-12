@@ -4,7 +4,7 @@ Cursor·Claude Code 같은 AI 도구로 만든 PR이 올라올 때, 떼껄룩이
 
 - 판정은 떼껄룩과 같습니다: 🔴 CONFIRMED · 🟡 UNCONFIRMED · ⚪ REFUTED · 👤 NEEDS_HUMAN
 - 원본 코드를 고치지 않습니다. 검사 중 파일을 바꾸지 않습니다.
-- 별도 API 키나 pip 패키지가 필요 없습니다. 검사는 저장소 안에서만, 표준 라이브러리로 돕니다.
+- 별도 API 키나 pip 패키지가 필요 없습니다. 고정된 TypeScript 분석기는 액션에 포함되며, 대상 저장소의 패키지를 설치하지 않습니다.
 
 ## 1. 워크플로 추가
 
@@ -36,7 +36,7 @@ jobs:
 2. `python -B -m take_a_look audit <path> --output $RUNNER_TEMP/take-a-look-reports`를 실행합니다. 보고서는 체크아웃한 저장소 밖(러너 임시 폴더)에 만들어 원본 폴더를 건드리지 않습니다.
 3. `tools/github_action_reporter.py`가 `report.json`을 읽어 Step Summary 마크다운을 쓰고, PR 이벤트면 코멘트를 남깁니다.
 4. 같은 PR에서 다시 돌면 **같은 코멘트를 갱신**합니다(본문 끝의 숨은 표식으로 찾음). 커밋마다 코멘트가 쌓이지 않습니다.
-5. `fail-on-confirmed` 정책에 따라 액션의 성공·실패를 정합니다.
+5. 기본값은 결과만 보고합니다. 실제 결함이 `CONFIRMED`이고 사용자가 `fail-on-confirmed: true`를 지정한 경우에만 해당 판정으로 실패합니다. 분석기 부재·실행 실패는 별도로 검사 미완료 처리합니다.
 
 코멘트에는 판정별 개수, 확인된 문제의 제목·파일:줄·검증 근거, 나머지 판정의 접은 목록, 검사 범위와 실행 로그 링크가 들어갑니다.
 
@@ -47,7 +47,7 @@ jobs:
 | `path` | `.` | 검사할 경로. 저장소 루트 기준 |
 | `python-version` | `'3.11'` | 검사에 쓸 파이썬 버전 (3.11 이상) |
 | `comment-pr` | `'true'` | PR 코멘트 작성 여부. `false`면 Step Summary만 남김 |
-| `fail-on-confirmed` | `'true'` | 🔴 CONFIRMED가 있으면 액션 실패(종료 코드 1) |
+| `fail-on-confirmed` | `'false'` | 명시적으로 `true`를 선택하고 🔴 CONFIRMED가 있으면 액션 실패(종료 코드 1) |
 | `github-token` | `${{ github.token }}` | 코멘트 API 호출용 토큰. 비밀값을 출력하지 않음 |
 
 ## 4. 출력값
@@ -74,13 +74,13 @@ jobs:
 | CONFIRMED 0건 | 성공 (0) |
 | CONFIRMED 1건 이상, `fail-on-confirmed: true` | 실패 (1) |
 | CONFIRMED 1건 이상, `fail-on-confirmed: false` | 성공 (0), 코멘트에 결과만 기록 |
-| 검사 미완료(경로 오류·무결성 변화 등) | 실패 (2) — 정책과 무관하게 실패 |
+| 검사 미완료(경로 오류·무결성 변화·Node/TypeScript 분석기 부재/실패 등) | 실패 (2) — 정책과 무관하게 실패 |
 
-처음 도입할 때는 `fail-on-confirmed: false`로 결과만 보다가, 오탐이 없다고 확인되면 `true`로 바꾸는 편이 안전합니다.
+기본값은 `false`입니다. 실제 재현으로 확인된 결함을 PR 차단 정책으로 쓰기로 결정한 경우에만 다음을 명시하세요.
 
 ```yaml
         with:
-          fail-on-confirmed: false
+          fail-on-confirmed: true
 ```
 
 검사가 끝나지 않은 경우(종료 코드 2)는 통과로 넘기지 않습니다. 검증을 못 한 것을 성공으로 표시하지 않는다는 떼껄룩의 원칙과 같습니다.

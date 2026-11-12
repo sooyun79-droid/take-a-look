@@ -13,7 +13,7 @@ dependencies = []
 take-a-look = "take_a_look.__main__:main"
 
 [tool.setuptools.package-data]
-take_a_look = ["web.html", "node_worker.mjs"]
+take_a_look = ["web.html", "node_worker.mjs", "vendor/typescript.js"]
 
 [tool.setuptools.packages.find]
 include = ["take_a_look*"]

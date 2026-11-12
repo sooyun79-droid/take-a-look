@@ -11,7 +11,8 @@ destination = ROOT / "dist" / "take-a-look.pyz"
 destination.parent.mkdir(exist_ok=True)
 with tempfile.TemporaryDirectory() as directory:
     source = Path(directory)
-    shutil.copytree(ROOT / "take_a_look", source / "take_a_look", ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
+    # The ZIP already ships the parser as a sidecar; avoid storing it twice.
+    shutil.copytree(ROOT / "take_a_look", source / "take_a_look", ignore=shutil.ignore_patterns("__pycache__", "*.pyc", "vendor"))
     (source / "__main__.py").write_text("from take_a_look.__main__ import main\nraise SystemExit(main())\n", encoding="utf-8")
     zipapp.create_archive(source, destination, compressed=True)
 compiler=ROOT/'node_modules/typescript'

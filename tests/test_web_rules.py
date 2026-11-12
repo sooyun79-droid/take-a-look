@@ -152,6 +152,13 @@ class DetectionTests(unittest.TestCase):
         }
         self.assertEqual([c for c in detect(sources) if c.rule == "client_payment_tamper"], [])
 
+    def test_payment_strings_and_comments_are_not_executable_calls(self):
+        sources = {
+            "docs.ts": 'const docs = "IMP.request_pay({ amount: 49000 })";\n',
+            "comment.ts": 'const ready = true;// IMP.request_pay({ amount: 49000 })\n',
+        }
+        self.assertEqual([c for c in detect(sources) if c.rule == "client_payment_tamper"], [])
+
     def test_web_rules_do_not_fire_on_python_sources(self):
         sources = {
             "calc.py": (
@@ -173,13 +180,13 @@ class DetectionTests(unittest.TestCase):
 
 
 class VerificationTests(unittest.TestCase):
-    def test_static_pattern_verification_confirms_and_refutes(self):
+    def test_static_pattern_verification_keeps_unproven_signals_unconfirmed(self):
         source = '<html>\n<meta name="robots" content="noindex">\n</html>\n'
         claim = Claim("C-1", "seo_noindex", "index.html", 2, "t", "r", "i", "m", "meta-robots")
         plan = Plan(claim.id, "static_pattern", "재확인", "CHECK_STATIC_PATTERN")
         found = DeterministicQA().run(claim, plan, source)
         self.assertEqual(found.outcome, "found")
-        self.assertEqual(EvidenceJudge().judge(claim, [found]).status, Status.CONFIRMED)
+        self.assertEqual(EvidenceJudge().judge(claim, [found]).status, Status.UNCONFIRMED)
 
         moved = DeterministicQA().run(Claim("C-2", "seo_noindex", "index.html", 3, "t", "r", "i", "m"), Plan("C-2", "static_pattern", "재확인", "CHECK_STATIC_PATTERN"), source)
         self.assertEqual(moved.outcome, "absent")
@@ -195,6 +202,21 @@ class VerificationTests(unittest.TestCase):
         plan = EvidenceBuilder().build(claim, Challenge(claim.id, "공개되어도 되는 값일 수 있습니다."))
         self.assertEqual(plan.kind, "static_pattern")
         self.assertEqual(plan.intent, "CHECK_STATIC_PATTERN")
+
+    def test_all_web_rule_patterns_need_more_than_a_matching_line(self):
+        cases = {
+            'seo_noindex': ('page.html', '<meta name="robots" content="noindex">'),
+            'client_secret_leak': ('client.ts', 'const x = process.env.NEXT_PUBLIC_STRIPE_SECRET;'),
+            'a11y_image_alt': ('page.html', '<img src="/banner.png">'),
+            'client_payment_tamper': ('checkout.ts', 'IMP.request_pay({ amount: 49000 });'),
+        }
+        for rule, (file, source) in cases.items():
+            with self.subTest(rule=rule):
+                claim = Claim('C-' + rule, rule, file, 1, 't', 'r', 'i', 'm')
+                plan = Plan(claim.id, 'static_pattern', '재확인', 'CHECK_STATIC_PATTERN')
+                evidence = DeterministicQA().run(claim, plan, source)
+                self.assertEqual(evidence.outcome, 'found')
+                self.assertEqual(EvidenceJudge().judge(claim, [evidence]).status, Status.UNCONFIRMED)
 
 
 class ReportTests(unittest.TestCase):
@@ -215,10 +237,11 @@ class ReportTests(unittest.TestCase):
         self.write("public/robots.txt", "User-agent: *\nDisallow: /\n")
         self.write("checkout.ts", "IMP.request_pay({\n  pg: 'nicepay',\n  amount: 49000,\n  name: 'full audit',\n});\n")
 
-    def test_end_to_end_report_confirms_static_signals(self):
+    def test_end_to_end_report_does_not_confirm_static_signals(self):
         self.build_shop()
         report, directory = Auditor().run(self.target, self.output)
-        self.assertEqual(report.summary["CONFIRMED"], 5)
+        self.assertEqual(report.summary["CONFIRMED"], 0)
+        self.assertEqual(report.summary["UNCONFIRMED"], len(report.claims))
         self.assertEqual({c.rule for c in report.claims}, WEB_RULES)
         self.assertEqual(len(report.groups), 4)
         self.assertEqual(report.integrity["status"], "UNCHANGED")
@@ -228,16 +251,29 @@ class ReportTests(unittest.TestCase):
         self.assertIn("검색 인덱싱 차단(noindex) 관련 의심", page)
         self.assertIn("검색엔진 및 AI 크롤러에서 페이지 노출이 완전히 제외될 수 있습니다.", page)
         regression = json.loads((directory / "regression-candidates.json").read_text(encoding="utf-8"))
-        self.assertEqual(len(regression), 5)
-        self.assertTrue(all(item["inputs"] == {"line": item["line"]} for item in regression))
+        self.assertEqual(regression, [])
 
     def test_report_never_contains_client_secret_value(self):
         token = "sk-" + "d" * 24
         self.write("app/client.ts", f'const leaked = "{token}";\n')
         report, directory = Auditor().run(self.target, self.output)
-        self.assertEqual(report.summary["CONFIRMED"], 1)
+        self.assertEqual(report.summary["UNCONFIRMED"], 1)
         for path in directory.iterdir():
             self.assertNotIn(token, path.read_text(encoding="utf-8"), path.name)
+
+    def test_payment_text_in_strings_and_comments_is_not_confirmed(self):
+        self.write("docs.ts", 'const docs = "IMP.request_pay({ amount: 49000 })";\n')
+        self.write("comment.ts", '// IMP.request_pay({ amount: 49000 })\n')
+        report, _ = Auditor().run(self.target, self.output)
+        self.assertEqual(report.summary["CONFIRMED"], 0)
+        self.assertFalse(any(c.rule == "client_payment_tamper" for c in report.claims))
+
+    def test_payment_call_with_literal_amount_stays_unconfirmed(self):
+        self.write("checkout.ts", "IMP.request_pay({ amount: 49000 });\n")
+        report, _ = Auditor().run(self.target, self.output)
+        payment = [v for c, v in zip(report.claims, report.verdicts) if c.rule == "client_payment_tamper"]
+        self.assertEqual(len(payment), 1)
+        self.assertEqual(payment[0].status, Status.UNCONFIRMED)
 
     def test_clean_shop_has_no_web_claims(self):
         self.write("site/index.html", '<html>\n<meta name="robots" content="index, follow">\n<img src="/a.png" alt="상품">\n</html>\n')
@@ -245,6 +281,10 @@ class ReportTests(unittest.TestCase):
         self.write("checkout.ts", "await pay({ amount: order.total });\n")
         report, _ = Auditor().run(self.target, self.output)
         self.assertEqual([c for c in report.claims if c.rule in WEB_RULES], [])
+
+    def test_real_python_boundary_failure_stays_confirmed(self):
+        report, _ = Auditor().run(ROOT / 'fixtures/a_bug', self.output)
+        self.assertEqual(report.summary['CONFIRMED'], 1)
 
 
 if __name__ == "__main__":

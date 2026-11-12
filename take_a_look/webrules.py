@@ -94,6 +94,12 @@ _PAYMENT_SDK = re.compile(
     r"|TossPayments|tossPayments|INICIS|inicis|KCP|PortOne|portone|Iamport)\b"
 )
 _AMOUNT_LITERAL = re.compile(r"\b(?:amount|price)\s*:\s*\d+")
+_SCRIPT_NONCODE = re.compile(
+    r'"(?:\\.|[^"\\])*"'
+    r"|'(?:\\.|[^'\\])*'"
+    r"|`(?:\\.|[^`\\])*`"
+    r"|//[^\n]*|/\*[\s\S]*?\*/"
+)
 PAYMENT_WINDOW_LINES = 15
 
 
@@ -192,15 +198,17 @@ def _scan_alt(file: str, text: str) -> list[dict]:
 def _scan_payment(file: str, text: str) -> list[dict]:
     if suffix(file) not in WEB_SUFFIXES:
         return []
-    sdk_lines = [( _line_at(text, m.start()), re.sub(r"\s+", "", m.group(0))) for m in _PAYMENT_SDK.finditer(text)]
+    # Documentation strings and adjacent // comments are never payment calls.
+    code = _SCRIPT_NONCODE.sub(lambda m: _blank(m.group(0)), text)
+    sdk_lines = [(_line_at(code, m.start()), re.sub(r"\s+", "", m.group(0))) for m in _PAYMENT_SDK.finditer(code)]
     if not sdk_lines:
         return []
     found = []
-    for amount in _AMOUNT_LITERAL.finditer(text):
-        line = _line_at(text, amount.start())
+    for amount in _AMOUNT_LITERAL.finditer(code):
+        line = _line_at(code, amount.start())
         near = [symbol for sdk_line, symbol in sdk_lines if abs(sdk_line - line) <= PAYMENT_WINDOW_LINES]
         if near:
-            found.append(_match("payment-amount-literal", near[0], text, amount.start(), amount.end()))
+            found.append(_match("payment-amount-literal", near[0], code, amount.start(), amount.end()))
     return _dedupe(found)
 
 

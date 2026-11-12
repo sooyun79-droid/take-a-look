@@ -18,7 +18,7 @@ pipx run --spec git+https://github.com/sooyun79-droid/take-a-look.git take-a-loo
 npx github:sooyun79-droid/take-a-look audit <folder>
 ```
 
-To keep it installed: `pipx install git+https://github.com/sooyun79-droid/take-a-look.git`, then run `take-a-look audit <folder>`. Reports are written to `reports/<id>/report.html` under the folder you ran it in; exit code 1 means confirmed findings, 2 means the audit could not run (path, permission or size), and a missing or older Python stops with exit code 1 after a setup hint.
+To keep it installed: `pipx install git+https://github.com/sooyun79-droid/take-a-look.git`, then run `take-a-look audit <folder>`. Reports are written to `reports/<id>/report.html` under the folder you ran it in. After a completed audit, exit code 1 means confirmed findings; exit code 2 means an invalid target or incomplete inspection, including a missing/failed Node/TypeScript analyzer. A missing or older Python stops with exit code 1 after a setup hint. Installed packages include the pinned TypeScript parser; Node itself remains a prerequisite for Node/TypeScript analysis.
 
 ### 2) Download (non-developers, Windows)
 
@@ -37,7 +37,7 @@ python -B -m take_a_look web --open
 
 The UI is Korean. Enter a local project path. Offline rule discovery is the default; OpenAI is optional and real API evaluation remains NOT_RUN in this environment. Limited Python and Node/TypeScript AST checks never import target code. Docker integration remains unvalidated here; there is no safety guarantee.
 
-Verdicts: CONFIRMED, REFUTED, UNCONFIRMED, NEEDS_HUMAN. Discovery attribution: RULE, LLM, BOTH. Source hashes, evidence IDs, execution mode, call counts and available token usage are preserved. Unknown costs and unmeasured false-positive rates are null.
+Verdicts: CONFIRMED, REFUTED, UNCONFIRMED, NEEDS_HUMAN. Web/e-commerce static patterns remain UNCONFIRMED until a real defect is proven; payment amount literals do not prove missing server-side checks. Discovery attribution: RULE, LLM, BOTH. Source hashes, evidence IDs, execution mode, call counts and available token usage are preserved. Unknown costs and unmeasured false-positive rates are null. The GitHub Action defaults to report-only (`fail-on-confirmed: false`); incomplete inspection always exits 2.
 
 ### 3) GitHub Action (CI/CD)
 
@@ -65,4 +65,4 @@ jobs:
 
 No API key or pip package is needed; reports are written outside the checked-out folder and the same PR comment is updated on every run. Setup, inputs, exit codes and fork limitations are in [docs/github-action.md](docs/github-action.md) (Korean).
 
-See [Korean guide](README.md), [sample](docs/sample-report.md), [security](SECURITY.md), [evaluation](docs/benchmark-003.md), [contributing](CONTRIBUTING.md) and [MIT license](LICENSE). The separately installed TypeScript parser remains Apache-2.0.
+See [Korean guide](README.md), [sample](docs/sample-report.md), [security](SECURITY.md), [evaluation](docs/benchmark-003.md), [contributing](CONTRIBUTING.md) and [MIT license](LICENSE). The bundled TypeScript parser remains Apache-2.0.
