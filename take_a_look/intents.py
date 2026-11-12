@@ -1,7 +1,7 @@
 """Closed verification vocabulary. A provider can never specify executable argv."""
 from pathlib import PurePosixPath
 
-INTENTS={'python_parse':'CHECK_SYNTAX','bounded_ast':'CHECK_BOUNDARY','node_boundary':'CHECK_BOUNDARY','contract_check':'CHECK_CONTRACT','human_review':'HUMAN_REVIEW','unsupported':'NO_EXECUTION'}
+INTENTS={'python_parse':'CHECK_SYNTAX','bounded_ast':'CHECK_BOUNDARY','node_boundary':'CHECK_BOUNDARY','contract_check':'CHECK_CONTRACT','static_pattern':'CHECK_STATIC_PATTERN','human_review':'HUMAN_REVIEW','unsupported':'NO_EXECUTION'}
 
 
 def validate_intent(claim,plan):

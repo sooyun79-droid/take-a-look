@@ -6,7 +6,9 @@ Provider.complete(RoleRequest) is the adapter interface. Investigator and Challe
 
 Claims store RULE / LLM / BOTH. Overlap requires the same rule, file and line; uncertain semantic matches remain separate. Fallback output is RULE. Grouping summarizes a verification pattern, not proof that every location has one root cause.
 
-Verification intents are CHECK_SYNTAX, CHECK_BOUNDARY, CHECK_CONTRACT, HUMAN_REVIEW, NO_EXECUTION. Fixed runners use argv with shell=False. No LLM-generated command strings execute. An unrecognized intent or path traversal is rejected.
+Verification intents are CHECK_SYNTAX, CHECK_BOUNDARY, CHECK_CONTRACT, CHECK_STATIC_PATTERN, HUMAN_REVIEW, NO_EXECUTION. Fixed runners use argv with shell=False. No LLM-generated command strings execute. An unrecognized intent or path traversal is rejected.
+
+CHECK_STATIC_PATTERN re-reads the same file with the closed web/e-commerce rule set (seo_noindex, client_secret_leak, a11y_image_alt, client_payment_tamper) and reports whether the pattern is still at the claimed line, with comments excluded. It confirms pattern presence only; deployment intent, server-side validation and app-wide impact stay with the human. Detection for the investigator role reads the redacted snapshot, so only names and masked placeholders survive into a claim, never secret values.
 
 For a contract claim, an explicit user contract is required. Pass --contracts with a JSON file outside the audited folder. Example content:
 

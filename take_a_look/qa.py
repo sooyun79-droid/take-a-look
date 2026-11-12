@@ -3,6 +3,7 @@ import platform
 
 from .probes import Unsupported, probe, tree
 from .schema import Evidence
+from .webrules import WEB_RULES, is_web_file, verify as verify_web_signal
 
 
 class DeterministicQA:
@@ -17,6 +18,13 @@ class DeterministicQA:
             raise ValueError("plan mismatch")
         digest = hashlib.sha256(source.encode()).hexdigest()
         base = dict(id="E-" + claim.id, claim_id=claim.id, kind=plan.kind, description=plan.description, source_sha256=digest)
+        if plan.kind == 'static_pattern':
+            if claim.rule not in WEB_RULES:
+                return Evidence(**base, outcome='not_run', details={'reason_code': 'RULE_MISMATCH'})
+            if not is_web_file(claim.file):
+                return Evidence(**base, outcome='unsupported', details={'reason_code': 'LANGUAGE_MISMATCH'})
+            result = verify_web_signal(claim.rule, claim.file, source, claim.line)
+            return Evidence(**base, outcome=result['outcome'], details=result)
         if plan.kind == 'contract_check':
             from .contracts import check_contract
             try:

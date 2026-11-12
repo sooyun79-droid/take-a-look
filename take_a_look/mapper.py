@@ -46,5 +46,5 @@ class ProjectMapper:
             "lint": bool(deps & {"eslint", "biome"}) or "ruff" in py_config,
             "skipped": skipped,
             "warnings": invalid,
-            "coverage": "Python 제한 검사 + Node/TypeScript AST 방어 분기·순수 함수 경계값 재현. 실제 앱 전체 실행/입력 계약은 별도 확인이 필요합니다.",
+            "coverage": "Python 제한 검사 + Node/TypeScript AST 방어 분기·순수 함수 경계값 재현 + 웹/이커머스 정적 규칙(noindex·공개 시크릿·이미지 alt·결제 금액). 실제 앱 전체 실행/입력 계약은 별도 확인이 필요합니다.",
         }

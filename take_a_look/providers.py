@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from typing import Callable, Protocol
 
 from .probes import candidates, tree, Unsupported
+from .webrules import IMPACTS as WEB_IMPACTS, METHODS as WEB_METHODS, REASONS as WEB_REASONS, TITLES as WEB_TITLES, scan_all as web_scan_all
 
 
 @dataclass(frozen=True)
@@ -66,6 +67,9 @@ class MockProvider:
                     for line, text in enumerate(source.splitlines(), 1):
                         if re.search(r"/\s*\w+\.length\b", text):
                             claims.append(self.item("js_boundary", file, line, "빈 목록 계산이 유효하지 않은 숫자를 만들 수 있습니다", "목록 길이로 나누는 표현이 있습니다. 문자열·주석일 수도 있어 확인이 필요합니다.", "화면이나 저장 값에 잘못된 숫자가 전달될 수 있습니다.", "JavaScript 실행 증거 필요"))
+                for match in web_scan_all(file, source):
+                    rule = match["rule"]
+                    claims.append(self.item(rule, file, match["line"], WEB_TITLES[rule], WEB_REASONS[match["signal"]], WEB_IMPACTS[rule], WEB_METHODS[rule], match["symbol"]))
             return {"claims": claims[:100]}
         if request.role == "challenger":
             claim = request.data["claim"]
@@ -83,6 +87,14 @@ class MockProvider:
                 counter = "다른 Python 버전 문법이거나 생성용 템플릿 파일일 가능성이 있습니다. 현재 분석기 버전의 결과로 한정해야 합니다."
             elif claim["rule"] == "product_policy":
                 counter = "현재 반올림이 제품에서 정한 올바른 정책일 수 있습니다. 코드만으로 정책을 결정할 수 없습니다."
+            elif claim["rule"] == "seo_noindex":
+                counter = "스테이징·검색 제외 페이지에 의도적으로 둔 설정이거나 배포 전에 제거되는 값일 수 있습니다. 파일만으로는 배포 의도를 알 수 없습니다."
+            elif claim["rule"] == "client_secret_leak":
+                counter = "공개되어도 되는 값이거나, 이름만 비슷한 공개 식별자이고 실제 비밀값은 서버에만 있을 수 있습니다."
+            elif claim["rule"] == "a11y_image_alt":
+                counter = "장식용 이미지라 의도적으로 alt를 비웠거나, 상위 컴포넌트가 alt를 주입할 수 있습니다."
+            elif claim["rule"] == "client_payment_tamper":
+                counter = "표시·미리보기용 금액이고 실제 결제 금액은 서버에서 다시 계산·검증할 수 있습니다."
             else:
                 counter = "상위 계층의 방어 코드나 의도된 실패 무시 정책이 있을 수 있습니다. 이 패턴만으로 버그라고 확정할 수 없습니다."
             return {"counterargument": counter, "defense_lines": locations}

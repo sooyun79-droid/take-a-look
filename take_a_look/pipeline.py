@@ -16,6 +16,7 @@ from .roles import Challenger, EvidenceBuilder, EvidenceJudge, Investigator
 from .runner import run_suite
 from .safety import collect, hashes, is_link, outside_target, text_sources
 from .schema import Report, Status
+from .webrules import WEB_RULES
 from .llm import configured_provider
 from .grouping import group_claims, metrics
 from .safety import redact
@@ -125,7 +126,8 @@ class Auditor:
             if verdict.status == Status.CONFIRMED:
                 e = next(e for e in evidence if e.claim_id == claim.id)
                 node_cases=[case for case in e.details.get('cases',[]) if case.get('outcome')=='invalid_output']
-                regressions.append({"claim_id": claim.id, "file": claim.file, "line": claim.line, "symbol": claim.symbol, "source_sha256": e.source_sha256, "inputs": e.details.get("inputs") or [o['input'] for case in node_cases for o in case.get('observations',[])], "observed": e.details.get("observations") or [o for case in node_cases for o in case.get('observations',[])], "next_action": "개발자가 입력 계약과 기대 결과를 정한 뒤 회귀 테스트로 옮기세요. 원본 테스트는 자동 변경하지 않습니다."})
+                next_action = ('패턴이 확인된 위치입니다. 의도된 설정인지 확인하고, 실제 결함이면 회귀 테스트로 고정하세요. 원본은 자동 변경하지 않습니다.' if claim.rule in WEB_RULES else '개발자가 입력 계약과 기대 결과를 정한 뒤 회귀 테스트로 옮기세요. 원본 테스트는 자동 변경하지 않습니다.')
+                regressions.append({"claim_id": claim.id, "file": claim.file, "line": claim.line, "symbol": claim.symbol, "source_sha256": e.source_sha256, "inputs": e.details.get("inputs") or [o['input'] for case in node_cases for o in case.get('observations',[])], "observed": e.details.get("observations") or [o for case in node_cases for o in case.get('observations',[])], "next_action": next_action})
         event("Human-readable Report")
         project_map['llm_usage']={role:{'attempted_calls':getattr(getattr(obj,'provider',None),'calls',0),'completed_calls':getattr(getattr(obj,'provider',None),'completed_calls',0),'fallback_calls':getattr(getattr(obj,'provider',None),'fallback_calls',0),'context_truncated':getattr(getattr(obj,'provider',None),'context_truncated',False)} for role,obj in [('investigator',self.investigator),('challenger',self.challenger)]}
         project_map['provider_fallbacks']={role:getattr(getattr(obj,'provider',None),'fallback_reason',None) for role,obj in [('investigator',self.investigator),('challenger',self.challenger)]}

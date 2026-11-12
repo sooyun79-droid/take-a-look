@@ -7,7 +7,7 @@ import stat
 from pathlib import Path
 
 IGNORED_DIRS = {".git", ".venv", "venv", "node_modules", "__pycache__", "dist", "build", ".next", ".cache"}
-SOURCE_SUFFIXES = {".py", ".js", ".jsx", ".ts", ".tsx", ".json", ".toml", ".yaml", ".yml", ".txt", ".ini", ".cfg", ".sql", ".lock", '.mjs', '.cjs'}
+SOURCE_SUFFIXES = {".py", ".js", ".jsx", ".ts", ".tsx", ".json", ".toml", ".yaml", ".yml", ".txt", ".ini", ".cfg", ".sql", ".lock", '.mjs', '.cjs', '.html', '.htm', '.vue', '.svelte'}
 MAX_FILES = 1500
 MAX_FILE_BYTES = 256_000
 MAX_TOTAL_BYTES = 12_000_000

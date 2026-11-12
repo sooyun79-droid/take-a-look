@@ -5,9 +5,9 @@ from hashlib import sha256
 def group_claims(claims, plans, verdicts):
     groups={}
     for c,p,v in zip(claims,plans,verdicts):
-        pattern={'js_boundary':'js:length-division','boundary_division':'python:zero-denominator','syntax':'python:syntax','swallowed_error':'python:swallowed-error','product_policy':'policy:rounding'}.get(c.rule,f'unclassified:{c.id}')
+        pattern={'js_boundary':'js:length-division','boundary_division':'python:zero-denominator','syntax':'python:syntax','swallowed_error':'python:swallowed-error','product_policy':'policy:rounding','seo_noindex':'web:noindex','client_secret_leak':'web:client-secret','a11y_image_alt':'web:image-alt','client_payment_tamper':'web:payment-amount'}.get(c.rule,f'unclassified:{c.id}')
         fingerprint=sha256((pattern+'|'+p.kind).encode()).hexdigest()[:16]
-        g=groups.setdefault(fingerprint,{'id':'G-'+fingerprint,'fingerprint':pattern+'|'+p.kind,'title':{'js_boundary':'빈 목록 계산 관련 의심','boundary_division':'경계값 나눗셈 관련 의심'}.get(c.rule,c.title),'claim_ids':[],'locations':{},'statuses':{},'note':'같은 검증 패턴을 묶었습니다. 서로 다른 위치가 같은 실제 원인이라는 뜻은 아닙니다.'})
+        g=groups.setdefault(fingerprint,{'id':'G-'+fingerprint,'fingerprint':pattern+'|'+p.kind,'title':{'js_boundary':'빈 목록 계산 관련 의심','boundary_division':'경계값 나눗셈 관련 의심','seo_noindex':'검색 인덱싱 차단(noindex) 관련 의심','client_secret_leak':'클라이언트 시크릿 노출 관련 의심','a11y_image_alt':'이미지 대체 텍스트 누락 관련 의심','client_payment_tamper':'결제 금액 클라이언트 지정 관련 의심'}.get(c.rule,c.title),'claim_ids':[],'locations':{},'statuses':{},'note':'같은 검증 패턴을 묶었습니다. 서로 다른 위치가 같은 실제 원인이라는 뜻은 아닙니다.'})
         g['claim_ids'].append(c.id)
         g['locations'][c.file]=g['locations'].get(c.file,0)+1
         g['statuses'][v.status.value]=g['statuses'].get(v.status.value,0)+1

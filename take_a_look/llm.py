@@ -12,7 +12,7 @@ def obj(properties):
 
 S = {'type':'string'}
 STRINGS = {'type':'array','items':S}
-CLAIM_SCHEMA = obj({'claim_id':S,'title':S,'category':S,'suspected_file':S,'suspected_lines':{'type':'array','items':{'type':'integer'}},'explanation':S,'reasoning_summary':S,'possible_impact':S,'proposed_verification':S,'confidence':{'type':'number'},'evidence_refs':STRINGS,'rule':{'type':'string','enum':['syntax','boundary_division','swallowed_error','product_policy','js_boundary','general','contract']},'symbol':S})
+CLAIM_SCHEMA = obj({'claim_id':S,'title':S,'category':S,'suspected_file':S,'suspected_lines':{'type':'array','items':{'type':'integer'}},'explanation':S,'reasoning_summary':S,'possible_impact':S,'proposed_verification':S,'confidence':{'type':'number'},'evidence_refs':STRINGS,'rule':{'type':'string','enum':['syntax','boundary_division','swallowed_error','product_policy','js_boundary','general','contract','seo_noindex','client_secret_leak','a11y_image_alt','client_payment_tamper']},'symbol':S})
 INVESTIGATE_SCHEMA = obj({'claims':{'type':'array','items':CLAIM_SCHEMA}})
 CHALLENGE_SCHEMA = obj({'claim_id':S,'challenge_summary':S,'counter_evidence':STRINGS,'verdict_recommendation':{'type':'string','enum':['REFUTED','UNCONFIRMED','NEEDS_HUMAN']},'verification_still_needed':STRINGS,'checks':obj({k:S for k in ['guard','caller_contract','schema_constraint','existing_test','intentional_fallback','dead_code','non_code','runtime_semantics']})})
 
